@@ -11,9 +11,20 @@ add_executable(${TARGET_NAME} "../res/appicon.ico" "../res/resources.rc")
 target_sources(
     ${TARGET_NAME}
     PUBLIC
-        "appinfo.h"
+        "Header/appinfo.h"
+        "Header/application.h"
+        "Header/applicationWindow.h"
+        "Header/types.h"
     PRIVATE
-        "main.cpp" 
+        "CPP/main.cpp" 
+        "CPP/application.cpp"
+        "CPP/applicationWindow.cpp"
+)
+
+target_include_directories(
+    ${TARGET_NAME}
+    PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/Header"
 )
 
 # set additional target properties

@@ -1,4 +1,4 @@
-#include "../engine.client/appinfo.h"
+#include "../engine.client/Header/appinfo.h"
 
 // Icon with lowest ID value placed first to ensure
 // the application icon remains consistent on all systems
