@@ -1,16 +1,23 @@
 #pragma once
-#include "types.h"
+
+// EXTERNAL INCLUDES
 #include <Windows.h>
-class AppWindow
+// INTERNAL INCLUDES
+#include "types.h"
+
+namespace Engine::Core
 {
-private:
-	HWND hwnd;
-public:
-	void Init(AnsiString name, int width, int height);
-	void Show();
-	void Hide();
-	void Maximize();
-	void Minimize();
-	void Resize();
-	bool MessagePump();
-};
+	class AppWindow
+	{
+	private:
+		HWND hwnd = NULL;
+	public:
+		void Init(AnsiString name, int width, int height);
+		void Show();
+		void Hide();
+		void Maximize();
+		void Minimize();
+		void Resize();
+		bool MessagePump();
+	};
+}

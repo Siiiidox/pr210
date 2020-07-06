@@ -1,5 +1,8 @@
 #include "AppWindow.h"
 #include "appinfo.h"
+
+using namespace Engine::Core;
+
 LRESULT WINAPI WinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch (uMsg)
@@ -22,7 +25,7 @@ void AppWindow::Init(AnsiString name, int width, int height)
 	WNDCLASSEX wc = {};
 	//Let windows know which wnd class type we use
 	wc.cbSize = sizeof(wc);
-	wc.hInstance = NULL;
+	wc.hInstance = GetModuleHandleA(NULL);
 	//Enable redraw for vertical and horizontal size change
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	//Set the icon for the application

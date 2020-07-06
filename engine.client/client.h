@@ -1,17 +1,24 @@
 #pragma once
+
+// EXTERNAL INCLUDES
+// INTERNAL INCLUDES
 #include "AppWindow.h"
-class Application
+
+namespace Game::Client
 {
-private:
-	AppWindow window;
-	enum class AppState
+	class Application
 	{
-		Started,
-		Running,
-		Stopped
-	} appState;
-public:
-	void Init();
-	void Run();
-	void Shutdown();
-};
+	private:
+		Engine::Core::AppWindow window;
+		enum class AppState
+		{
+			Started,
+			Running,
+			Stopped
+		} appState = AppState::Started;
+	public:
+		void Init();
+		void Run();
+		void Shutdown();
+	};
+}

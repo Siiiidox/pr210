@@ -1,5 +1,10 @@
+// EXTERNAL INCLUDES
+// INTERNAL INCLUDES
 #include "client.h"
 #include "types.h"
+
+using namespace Game::Client;
+
 void Application::Init()
 {
 	AnsiString name = "PR210 Engine";

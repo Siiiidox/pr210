@@ -9,8 +9,11 @@ add_library(${TARGET_NAME} STATIC)
 target_sources(
     ${TARGET_NAME}
     PUBLIC
+        "${CMAKE_CURRENT_SOURCE_DIR}/appinfo.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/vec3.h"
     PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/vec3.cpp"
 )
 
 # set additional target properties
