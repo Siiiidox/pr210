@@ -5,7 +5,7 @@ SET(TARGET_NAME engine.client)
 cmake_minimum_required (VERSION 3.9)
 
 # Add source to this project's executable.
-add_executable(${TARGET_NAME} "../res/appicon.ico" "../res/resources.rc")
+add_executable(${TARGET_NAME} "../res/appicon.ico" "../res/resources.rc" "client.h" "client.cpp" "types.h" "AppWindow.cpp")
 
 # add sources to target
 target_sources(
