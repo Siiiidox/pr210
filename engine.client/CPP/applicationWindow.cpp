@@ -7,14 +7,13 @@ LRESULT WINAPI WinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)
 	{
 	case WM_QUIT:
-	//NO Break to bleed in Close
+	//No Break to bleed in Close
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(EXIT_SUCCESS);
 		break;
-
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
@@ -24,14 +23,14 @@ void ApplicationWindow::Init(AnsiString applicationName, int width, int height)
 {
 	AnsiString className = "WinClass";
 	WNDCLASSEX wc = {};
+	wc.cbSize = sizeof(wc);
 	wc.hInstance = NULL;
 	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
 	wc.hIcon = LoadIcon(wc.hInstance, MAKEINTRESOURCE(IDI_APPICON));
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.lpfnWndProc = WinProc;
-	wc.cbSize = sizeof(wc);
 	wc.lpszClassName = className;
+	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH); 
 
 	if (FAILED(RegisterClassEx(&wc)))
 	{
