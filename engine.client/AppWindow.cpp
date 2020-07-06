@@ -11,7 +11,6 @@ LRESULT WINAPI WinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		PostQuitMessage(EXIT_SUCCESS);
 		break;
-		
 	}
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
@@ -21,20 +20,26 @@ void AppWindow::Init(AnsiString name, int width, int height)
 	AnsiString className = "WinClass";
 
 	WNDCLASSEX wc = {};
-	wc.hInstance = NULL;
-	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hIcon = LoadIcon(wc.hInstance, MAKEINTRESOURCE(IDI_APPICON));
-	wc.lpfnWndProc = WinProc;
+	//Let windows know which wnd class type we use
 	wc.cbSize = sizeof(wc);
+	wc.hInstance = NULL;
+	//Enable redraw for vertical and horizontal size change
+	wc.style = CS_HREDRAW | CS_VREDRAW;
+	//Set the icon for the application
+	wc.hIcon = LoadIcon(wc.hInstance, MAKEINTRESOURCE(IDI_APPICON));
+	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	//Assign process to this class
+	wc.lpfnWndProc = WinProc;
+	//Label the class for identification for window
 	wc.lpszClassName = className;
+	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	
-
+	//Register Class for preperation to create window
 	if (FAILED(RegisterClassEx(&wc)))
 	{
 		MessageBoxA(NULL, "HAT NICHT FUNZT", "ERROR", MB_OK | MB_ICONEXCLAMATION);
 	}
+	//Create Window with specified styles and assigned window class
 	this->hwnd = CreateWindowEx(
 		0,
 		className,
@@ -49,10 +54,12 @@ void AppWindow::Init(AnsiString name, int width, int height)
 		wc.hInstance,
 		NULL
 	);
+	//Message Client if window could not 
 	if (this->hwnd == NULL)
 	{
 		MessageBoxA(NULL, "HAT NICHT FUNZT", "ERROR", MB_OK | MB_ICONEXCLAMATION);
 	}
+	//Display the Window
 	this->Show();
 }
 
@@ -83,6 +90,7 @@ void AppWindow::Resize()
 
 bool AppWindow::MessagePump()
 {
+	//Read Message and Dispatch them for WinProc
 	MSG msg = { };
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
