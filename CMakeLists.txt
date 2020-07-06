@@ -8,4 +8,5 @@ project ("PR210")
 include(compiler.cmake)
 
 # Include sub-projects.
-add_subdirectory ("PR210")
+add_subdirectory ("engine.shared")
+add_subdirectory ("engine.client")
