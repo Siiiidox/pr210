@@ -29,5 +29,4 @@ target_link_libraries(${TARGET_NAME}
 target_include_directories(${TARGET_NAME} PRIVATE
 	"${CMAKE_SOURCE_DIR}/engine.client"
 	"${CMAKE_SOURCE_DIR}/engine.shared"
-	"${CMAKE_CURRENT_SOURCE_DIR}/includes"
 )

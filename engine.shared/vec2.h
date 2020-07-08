@@ -64,9 +64,9 @@ namespace Engine::Math
 			return	(x * v.x) +
 					(y * v.y);
 		}
-		inline Vec2 Cross(Vec2 v) const
+		inline real Cross(Vec2 v) const
 		{
-			return Vec2{x * v.y - y * v.x };
+			return x * v.y - y * v.x;
 		}
 		inline Vec2 Lerp(Vec2 v, real t) const
 		{

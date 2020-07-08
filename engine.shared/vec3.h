@@ -9,6 +9,7 @@
 
 namespace Engine::Math
 {
+	
 	class Vec3
 	{
 	public:
@@ -128,6 +129,7 @@ namespace Engine::Math
 			this->z *= rhs;
 			return *this;
 		}
+		Vec3& operator*=(const class Mat4x4& rhs);
 		inline Vec3& operator/=(const real rhs)
 		{
 			assert(rhs != static_cast<real>(0.0));
@@ -175,7 +177,7 @@ namespace Engine::Math
 			return !(*this == v);
 		}
 
-		inline Vec3 operator-()
+		inline Vec3 operator-() const
 		{
 			return Vec3{ -x, -y, -z };
 		}

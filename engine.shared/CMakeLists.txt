@@ -14,6 +14,7 @@ target_sources(
         "${CMAKE_CURRENT_SOURCE_DIR}/vec3.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/vec2.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/mat4x4.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/mathutils.h"
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/vec3.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/vec2.cpp"
@@ -22,8 +23,3 @@ target_sources(
 
 # set additional target properties
 set_target_properties(${TARGET_NAME} PROPERTIES LINKER_LANGUAGE CXX DEBUG_POSTFIX ".debug")
-
-# additional includes for target
-target_include_directories(${TARGET_NAME} PRIVATE
-	"${CMAKE_CURRENT_SOURCE_DIR}/includes"
-)
