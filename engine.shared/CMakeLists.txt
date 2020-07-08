@@ -12,8 +12,12 @@ target_sources(
         "${CMAKE_CURRENT_SOURCE_DIR}/appinfo.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/types.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/vec3.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vec2.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/mat4x4.h"
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/vec3.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vec2.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/mat4x4.cpp"
 )
 
 # set additional target properties
