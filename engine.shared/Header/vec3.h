@@ -180,5 +180,10 @@ namespace Engine::Math
 		{
 			return Vec3{ -x,-y,-z };
 		}
+
+		//Matrix
+		Vec3& operator*=(const class Matrix4x4& matrix);
 	};
+
+
 }
