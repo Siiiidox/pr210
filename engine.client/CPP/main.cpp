@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "application.h"
+#include "vec3.h"
 
 int main(int argc, char** argv)
 {
@@ -9,5 +10,7 @@ int main(int argc, char** argv)
 	app.Init();
 	app.Run();
 	app.Shutdown();
+
+
 	return 0;
 }
