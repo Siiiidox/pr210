@@ -5,6 +5,8 @@
 #include <cassert>
 // INTERNAL INCLUDES
 #include "types.h"
+#include "vec3.h"
+
 namespace Engine::Math
 {
 	class Quaternion
@@ -101,10 +103,11 @@ namespace Engine::Math
 		}
 		inline Quaternion& operator*=(const Quaternion& rhs)
 		{
-			this->x *= rhs.x;
-			this->y *= rhs.y;
-			this->z *= rhs.z;
-			this->w *= rhs.w;
+			Quaternion temp = *this;
+			this->w = temp.w * rhs.w - temp.x * rhs.x - temp.y * rhs.y - temp.z * rhs.z;
+			this->x = temp.w * rhs.x + temp.x * rhs.w + temp.y * rhs.z - temp.z * rhs.y;
+			this->y = temp.w * rhs.y + temp.y * rhs.w + temp.z * rhs.x - temp.x * rhs.z;
+			this->z = temp.w * rhs.z + temp.z * rhs.w + temp.x * rhs.y - temp.y * rhs.x;
 			return *this;
 		}
 		inline Quaternion& operator/=(const Quaternion& rhs)
@@ -176,6 +179,25 @@ namespace Engine::Math
 		inline Quaternion operator-() const
 		{
 			return Quaternion{ -x, -y, -z, -w };
+		}
+
+		static Quaternion FromAngleAxis(real angle, const Vec3& axis)
+		{
+			real halfAngle = angle * static_cast<real>(0.5);
+#ifdef DOUBLEPRECISION 
+			real halfSin = sin(halfAngle);
+			real halfCos = cos(halfAngle);
+#else
+			real halfSin = sinf(halfAngle);
+			real halfCos = cosf(halfAngle);
+#endif
+			return Quaternion
+			{
+				halfSin * axis.x,
+				halfSin * axis.y,
+				halfSin * axis.z,
+				halfCos
+			};
 		}
 	};
 }

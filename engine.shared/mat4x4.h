@@ -81,25 +81,26 @@ namespace Engine::Math
 		}
 		inline Mat4x4& operator*=(const Mat4x4& rhs)
 		{
-			this->m11 = this->m11 * rhs.m11 + this->m12 * rhs.m21 + this->m13 * rhs.m31 + this->m14 * rhs.m41;
-			this->m12 = this->m11 * rhs.m12 + this->m12 * rhs.m22 + this->m13 * rhs.m32 + this->m14 * rhs.m42;
-			this->m13 = this->m11 * rhs.m13 + this->m12 * rhs.m23 + this->m13 * rhs.m33 + this->m14 * rhs.m43;
-			this->m14 = this->m11 * rhs.m14 + this->m12 * rhs.m24 + this->m13 * rhs.m34 + this->m14 * rhs.m44;
+			Mat4x4 temp = *this;
+			this->m11 = temp.m11 * rhs.m11 + temp.m12 * rhs.m21 + temp.m13 * rhs.m31 + temp.m14 * rhs.m41;
+			this->m12 = temp.m11 * rhs.m12 + temp.m12 * rhs.m22 + temp.m13 * rhs.m32 + temp.m14 * rhs.m42;
+			this->m13 = temp.m11 * rhs.m13 + temp.m12 * rhs.m23 + temp.m13 * rhs.m33 + temp.m14 * rhs.m43;
+			this->m14 = temp.m11 * rhs.m14 + temp.m12 * rhs.m24 + temp.m13 * rhs.m34 + temp.m14 * rhs.m44;
 
-			this->m21 = this->m21 * rhs.m11 + this->m22 * rhs.m21 + this->m23 * rhs.m31 + this->m24 * rhs.m41;
-			this->m22 = this->m21 * rhs.m12 + this->m22 * rhs.m22 + this->m23 * rhs.m32 + this->m24 * rhs.m42;
-			this->m23 = this->m21 * rhs.m13 + this->m22 * rhs.m23 + this->m23 * rhs.m33 + this->m24 * rhs.m43;
-			this->m24 = this->m21 * rhs.m14 + this->m22 * rhs.m24 + this->m23 * rhs.m34 + this->m24 * rhs.m44;
+			this->m21 = temp.m21 * rhs.m11 + temp.m22 * rhs.m21 + temp.m23 * rhs.m31 + temp.m24 * rhs.m41;
+			this->m22 = temp.m21 * rhs.m12 + temp.m22 * rhs.m22 + temp.m23 * rhs.m32 + temp.m24 * rhs.m42;
+			this->m23 = temp.m21 * rhs.m13 + temp.m22 * rhs.m23 + temp.m23 * rhs.m33 + temp.m24 * rhs.m43;
+			this->m24 = temp.m21 * rhs.m14 + temp.m22 * rhs.m24 + temp.m23 * rhs.m34 + temp.m24 * rhs.m44;
 
-			this->m31 = this->m31 * rhs.m11 + this->m32 * rhs.m21 + this->m33 * rhs.m31 + this->m34 * rhs.m41;
-			this->m32 = this->m31 * rhs.m12 + this->m32 * rhs.m22 + this->m33 * rhs.m32 + this->m34 * rhs.m42;
-			this->m33 = this->m31 * rhs.m13 + this->m32 * rhs.m23 + this->m33 * rhs.m33 + this->m34 * rhs.m43;
-			this->m34 = this->m31 * rhs.m14 + this->m32 * rhs.m24 + this->m33 * rhs.m34 + this->m34 * rhs.m44;
+			this->m31 = temp.m31 * rhs.m11 + temp.m32 * rhs.m21 + temp.m33 * rhs.m31 + temp.m34 * rhs.m41;
+			this->m32 = temp.m31 * rhs.m12 + temp.m32 * rhs.m22 + temp.m33 * rhs.m32 + temp.m34 * rhs.m42;
+			this->m33 = temp.m31 * rhs.m13 + temp.m32 * rhs.m23 + temp.m33 * rhs.m33 + temp.m34 * rhs.m43;
+			this->m34 = temp.m31 * rhs.m14 + temp.m32 * rhs.m24 + temp.m33 * rhs.m34 + temp.m34 * rhs.m44;
 
-			this->m41 = this->m41 * rhs.m11 + this->m42 * rhs.m21 + this->m43 * rhs.m31 + this->m44 * rhs.m41;
-			this->m42 = this->m41 * rhs.m12 + this->m42 * rhs.m22 + this->m43 * rhs.m32 + this->m44 * rhs.m42;
-			this->m43 = this->m41 * rhs.m13 + this->m42 * rhs.m23 + this->m43 * rhs.m33 + this->m44 * rhs.m43;
-			this->m44 = this->m41 * rhs.m14 + this->m42 * rhs.m24 + this->m43 * rhs.m34 + this->m44 * rhs.m44;
+			this->m41 = temp.m41 * rhs.m11 + temp.m42 * rhs.m21 + temp.m43 * rhs.m31 + temp.m44 * rhs.m41;
+			this->m42 = temp.m41 * rhs.m12 + temp.m42 * rhs.m22 + temp.m43 * rhs.m32 + temp.m44 * rhs.m42;
+			this->m43 = temp.m41 * rhs.m13 + temp.m42 * rhs.m23 + temp.m43 * rhs.m33 + temp.m44 * rhs.m43;
+			this->m44 = temp.m41 * rhs.m14 + temp.m42 * rhs.m24 + temp.m43 * rhs.m34 + temp.m44 * rhs.m44;
 			return *this;
 		}
 		inline Mat4x4& operator*=(const real& rhs)
