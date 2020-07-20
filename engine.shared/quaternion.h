@@ -148,7 +148,22 @@ namespace Engine::Math
 		}
 		inline Quaternion operator*(const Quaternion& q) const
 		{
-			return Quaternion{ x * q.x, y * q.y, z * q.z, w * q.w };
+			return Quaternion
+			{
+				this->w * q.w - this->x * q.x - this->y * q.y - this->z * q.z,
+				this->w * q.x + this->x * q.w + this->y * q.z - this->z * q.y,
+				this->w * q.y + this->y * q.w + this->z * q.x - this->x * q.z,
+				this->w * q.z + this->z * q.w + this->x * q.y - this->y * q.x
+			}
+		}
+		inline Vec3 operator*(const Vec3& vec) const
+		{
+			Vec3 axis = Vec3(this->x, this->y, this->z);
+			Vec3 u = axis.Cross(vec);
+			Vec3 v = axis.Cross(u);
+			u *= static_cast<real>(2.0) * this->w;
+			v *= static_cast<real>(2.0);
+			return vec + u + v;
 		}
 		inline Quaternion operator/(const Quaternion& q) const
 		{
@@ -159,6 +174,7 @@ namespace Engine::Math
 		{
 			return Quaternion{ x * t, y * t, z * t, w * t };
 		}
+		
 		inline Quaternion operator/(const real t) const
 		{
 			assert(t != static_cast<real>(0.0));
@@ -175,6 +191,8 @@ namespace Engine::Math
 		{
 			return !(*this == v);
 		}
+		
+
 		inline bool Equals(const Quaternion& q, const real tolerance) const
 		{
 			real dot = this->Dot(q);
@@ -208,6 +226,42 @@ namespace Engine::Math
 				halfSin * axis.z,
 				halfCos
 			};
+		}
+		inline void ToAngleAxis(real& angle, Vec3& axis) const
+		{
+			if (this->SqrMagnitude() > 0)
+			{
+				
+#ifdef DOUBLEPRECISION 
+				angle = static_cast<real>(2) * acos(this->w);
+#else
+				angle = static_cast<real>(2) * acosf(this->w);
+#endif
+				real inverse = static_cast<real>(1) - this->Magnitude();
+				axis.x = this->x * inverse;
+				axis.y = this->y * inverse;
+				axis.z = this->z * inverse;
+			}
+			else
+			{
+				angle = static_cast<real>(0.0);
+				axis = Vec3::UnitY;
+			}
+		}
+		inline Quaternion Inverse() const
+		{
+			if (this->SqrMagnitude() > 0)
+			{
+				real inv = static_cast<real>(1.0) / this->Magnitude();
+				return Quaternion
+				{
+					x * inv,
+					y * inv,
+					z * inv,
+					w * inv
+				};
+			}
+			return Quaternion::Zero;
 		}
 	};
 }

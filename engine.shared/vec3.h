@@ -130,6 +130,7 @@ namespace Engine::Math
 			return *this;
 		}
 		Vec3& operator*=(const class Mat4x4& rhs);
+
 		inline Vec3& operator/=(const real rhs)
 		{
 			assert(rhs != static_cast<real>(0.0));
