@@ -175,6 +175,16 @@ namespace Engine::Math
 		{
 			return !(*this == v);
 		}
+		inline bool Equals(const Quaternion& q, const real tolerance) const
+		{
+			real dot = this->Dot(q);
+#ifdef DOUBLEPRECISION 
+			real angle = acos(static_cast<real>(2.0) * dot * dot - static_cast<real>(1.0));
+#else
+			real angle = acosf(static_cast<real>(2.0) * dot * dot - static_cast<real>(1.0));
+#endif
+			return abs(angle) <= tolerance;
+		}
 
 		inline Quaternion operator-() const
 		{
