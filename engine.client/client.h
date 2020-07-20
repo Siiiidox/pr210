@@ -2,7 +2,7 @@
 
 // EXTERNAL INCLUDES
 // INTERNAL INCLUDES
-#include "AppWindow.h"
+#include "appwindow.h"
 
 namespace Game::Client
 {

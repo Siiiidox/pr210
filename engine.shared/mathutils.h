@@ -30,6 +30,6 @@ namespace Engine::Math
 	static constexpr T Clamp(const T& val, const T& min, const T& max)
 	{
 		assert(min <= max);
-		return maxt(mint(val, max), min);
+		return Max(Min(val, max), min);
 	}
 }

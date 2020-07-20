@@ -1,4 +1,4 @@
-#include "AppWindow.h"
+#include "appwindow.h"
 #include "appinfo.h"
 
 using namespace Engine::Core;
