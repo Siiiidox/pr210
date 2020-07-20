@@ -35,7 +35,7 @@ namespace Engine::Math
 			};
 		}
 
-		inline Matrix4x4 operator+=(const Matrix4x4& matrix)
+		inline Matrix4x4& operator+=(const Matrix4x4& matrix)
 		{
 			this->m11 += matrix.m11;
 			this->m12 += matrix.m12;
@@ -60,7 +60,7 @@ namespace Engine::Math
 			return *this;
 		}
 
-		inline Matrix4x4 operator-=(const Matrix4x4& matrix)
+		inline Matrix4x4& operator-=(const Matrix4x4& matrix)
 		{
 			this->m11 -= matrix.m11;
 			this->m12 -= matrix.m12;
@@ -85,7 +85,7 @@ namespace Engine::Math
 			return *this;
 		}
 
-		inline Matrix4x4 operator*=(const Matrix4x4& matrix)
+		inline Matrix4x4& operator*=(const Matrix4x4& matrix)
 		{
 			Matrix4x4 temp = *this;
 
@@ -241,7 +241,7 @@ namespace Engine::Math
 
 		//Real
 
-		inline Matrix4x4 operator*=(const real& real)
+		inline Matrix4x4& operator*=(const real& real)
 		{
 			this->m11 *= real;
 			this->m12 *= real;
