@@ -49,11 +49,11 @@ namespace Engine::Math
 
 		inline real Magnitude() const
 		{
-#ifdef DOUBLEPRECISION
+		#ifdef DOUBLEPRECISION
 			return sqrt(SqrMagnitude());
-#else
+		#else
 			return sqrtf(SqrMagnitude());
-#endif
+		#endif
 		}
 
 		inline real SqrMagnitude() const
@@ -75,11 +75,11 @@ namespace Engine::Math
 		}
 		inline real Distance(Vec3 vector) const
 		{
-#ifdef DOUBLEPRECISION
+		#ifdef DOUBLEPRECISION
 			return sqrt((vector - *this).SqrMagnitude());
-#else
+		#else
 			return sqrtf((vector - *this).SqrMagnitude());
-#endif		
+		#endif		
 		}
 
 		inline Vec3& operator+=(const Vec3& rhs)

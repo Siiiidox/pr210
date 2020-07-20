@@ -4,16 +4,16 @@ using namespace Engine::Math;
 
 const Matrix4x4 Matrix4x4::IDENTITY = 
 {
-	1, 0, 0, 0,
-	0, 1, 0, 0,
-	0, 0, 1, 0,
-	0, 0, 0, 1
+	static_cast<real>(1.0), static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0),
+	static_cast<real>(0.0), static_cast<real>(1.0), static_cast<real>(0.0), static_cast<real>(0.0),
+	static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(1.0), static_cast<real>(0.0),
+	static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(1.0)
 };
 
 const Matrix4x4 Matrix4x4::ZERO =
 {
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0,
-	0, 0, 0, 0
+	static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0),
+	static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0),
+	static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0),
+	static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0)
 };

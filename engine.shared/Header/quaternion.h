@@ -36,12 +36,11 @@ namespace Engine::Math
 		inline bool Normalize()
 		{
 			real invertedMagnitude = static_cast<real>(1.0) / Magnitude();
-
-#ifdef DOUBLEPRECISION 
+		#ifdef DOUBLEPRECISION 
 			if (invertedMagnitude >= DBL_MIN)
-#else
+			#else
 			if (invertedMagnitude >= FLT_MIN)
-#endif // DOUBLEPRECISION 
+			#endif  
 			{
 				*this *= invertedMagnitude;
 				return true;
@@ -51,11 +50,11 @@ namespace Engine::Math
 		}
 		inline real Magnitude() const
 		{
-#ifdef DOUBLEPRECISION
+		#ifdef DOUBLEPRECISION
 			return sqrt(SqrMagnitude());
-#else
+		#else
 			return sqrtf(SqrMagnitude());
-#endif
+		#endif
 		}
 		inline real SqrMagnitude() const
 		{
@@ -75,11 +74,11 @@ namespace Engine::Math
 		}
 		inline real Distance(Quaternion quat) const
 		{
-#ifdef DOUBLEPRECISION
+		#ifdef DOUBLEPRECISION
 			return sqrt(SqrDistance(quat));
-#else
+		#else
 			return sqrtf(SqrDistance(quat));
-#endif
+		#endif
 		}
 		inline real SqrDistance(Quaternion quat) const
 		{
@@ -142,29 +141,47 @@ namespace Engine::Math
 
 		inline Quaternion operator+(const Quaternion& quat) const
 		{
-			return Quaternion{ x + quat.x, y + quat.y, z + quat.z, w + quat.w };
+			return Quaternion{ this->x + quat.x, this->y + quat.y, this->z + quat.z, this->w + quat.w };
 		}
 		inline Quaternion operator-(const Quaternion& quat) const
 		{
-			return Quaternion{ x - quat.x, y - quat.y, z - quat.z, w - quat.w };
+			return Quaternion{ this->x - quat.x, this->y - quat.y, this->z - quat.z, this->w - quat.w };
 		}
 		inline Quaternion operator*(const Quaternion& quat) const
 		{
-			return Quaternion{ x * quat.x, y * quat.y,z * quat.z, w * quat.w };
+			return Quaternion
+			{
+				this->w * quat.x + this->x * quat.w + this->y * quat.z - this->z * quat.y,
+				this->w * quat.y + this->y * quat.w + this->z * quat.x - this->x * quat.z,
+				this->w * quat.z + this->z * quat.w + this->x * quat.y - this->y * quat.x,
+				this->w * quat.w - this->x * quat.x - this->y * quat.y - this->z * quat.z
+			};
+
 		}
 		inline Quaternion operator/(const Quaternion& quat) const
 		{
 			assert(quat != Quaternion::ZERO);
-			return Quaternion{ x / quat.x, y / quat.y, z / quat.z, w / quat.w };
+			return Quaternion{ this->x / quat.x, this->y / quat.y, this->z / quat.z, this->w / quat.w };
 		}
 		inline Quaternion operator*(const real t) const
 		{
-			return Quaternion{ x * t, y * t, z * t, w * t };
+			return Quaternion{ this->x * t, this->y * t, this->z * t, this->w * t };
 		}
 		inline Quaternion operator/(const real t) const
 		{
 			assert(t != static_cast<real>(0.0));
-			return Quaternion{ x / t, y / t, z / t,w / t };
+			return Quaternion{ this->x / t,this->y / t, this->z / t, this->w / t };
+		}
+
+		inline Vec3 operator*(const Vec3 vector) const
+		{
+			Vec3 axis = Vec3(this->x, this->y, this->z);
+			Vec3 u = axis.Cross(vector);
+			Vec3 v = axis.Cross(u);
+			u *= static_cast<real>(2.0)* this->w;
+			v *= static_cast<real>(2.0);
+
+			return vector + u + v;
 		}
 
 		inline bool operator==(const Quaternion& quat) const
@@ -192,18 +209,17 @@ namespace Engine::Math
 		static Quaternion FromAngleAxis(real angle, const Vec3& axis)
 		{
 			real halfAngle = angle * static_cast<real>(0.5);
-			real tempSin =
-#ifdef DOUBLEPRECISION
-				sin(halfAngle);
-#else
-				sinf(halfAngle);
-#endif
-			real tempCos =
-#ifdef DOUBLEPRECISION
-				cos(halfAngle);
-#else
-				cosf(halfAngle);
-#endif
+		#ifdef DOUBLEPRECISION
+			real tempSin = sin(halfAngle);
+		#else
+			real tempSin = sinf(halfAngle);
+		#endif
+
+		#ifdef DOUBLEPRECISION
+			real tempCos = cos(halfAngle);
+		#else
+			real tempCos = cosf(halfAngle);
+		#endif
 
 			return Quaternion
 			{
@@ -218,16 +234,50 @@ namespace Engine::Math
 		{
 			return *this == quat;
 		}
+
 		inline bool Equals(const Quaternion& quat, const real tolerance) const
 		{
 			real dot = this->Dot(quat);
-			real angle =
-#ifdef DOUBLEPRECISION
-				acos(static_cast<real>(2.0) * dot * dot - static_cast<real>(1.0));
-#else
-				acosf(static_cast<real>(2.0) * dot * dot - static_cast<real>(1.0));
-#endif
+		#ifdef DOUBLEPRECISION
+			real angle = acos(static_cast<real>(2.0)* dot* dot - static_cast<real>(1.0));
+		#else
+			real angle = acosf(static_cast<real>(2.0)* dot* dot - static_cast<real>(1.0));
+		#endif
 			return abs(angle) <= tolerance;
+		}
+
+		inline void ToAngleAxis(real& angle, Vec3& axis) const
+		{
+			if (this->SqrMagnitude() > 0)
+			{
+				angle = static_cast<real>(2.0)* acos(this->w);
+				axis *= (static_cast<real>(1.0) - this->Magnitude());
+			}
+			else
+			{
+				angle = static_cast<real>(0.0);
+				axis = Vec3::UNITX;
+			}
+
+		}
+
+		inline Quaternion Inverse() const
+		{
+			if (this->SqrMagnitude() > 0)
+			{
+				real inverse = static_cast<real>(1.0) / this->Magnitude();
+				return Quaternion
+				{
+					x * inverse,
+					y * inverse,
+					z * inverse,
+					w * inverse
+				};
+			}
+			else
+			{
+				return Quaternion::ZERO;
+			}
 		}
 	};
 }
