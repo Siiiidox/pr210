@@ -186,7 +186,7 @@ namespace Engine::Math
 
 		inline Quaternion operator-()
 		{
-			return Quaternion{ -x, -y , -z, -w };
+			return Quaternion{ -x, -y , -z, w };
 		}
 
 		static Quaternion FromAngleAxis(real angle, const Vec3& axis)
