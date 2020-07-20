@@ -7,6 +7,7 @@
 #include "types.h"
 #include "vec3.h"
 #include "mathUtils.h"
+#include "quaternion.h"
 
 namespace Engine::Math
 {
@@ -86,30 +87,30 @@ namespace Engine::Math
 
 		inline Matrix4x4 operator*=(const Matrix4x4& matrix)
 		{
-			this->m11 = this->m11 * matrix.m11 + this->m12 * matrix.m21 + this->m13 * matrix.m31 + this->m14 * matrix.m41;
-			this->m12 = this->m11 * matrix.m12 + this->m12 * matrix.m22 + this->m13 * matrix.m32 + this->m14 * matrix.m42;
-			this->m13 = this->m11 * matrix.m13 + this->m12 * matrix.m23 + this->m13 * matrix.m33 + this->m14 * matrix.m43;
-			this->m14 = this->m11 * matrix.m14 + this->m12 * matrix.m24 + this->m13 * matrix.m34 + this->m14 * matrix.m44;
+			Matrix4x4 temp = *this;
 
-			this->m21 = this->m21 * matrix.m11 + this->m22 * matrix.m21 + this->m23 * matrix.m31 + this->m24 * matrix.m41;
-			this->m22 = this->m21 * matrix.m12 + this->m22 * matrix.m22 + this->m23 * matrix.m32 + this->m24 * matrix.m42;
-			this->m23 = this->m21 * matrix.m13 + this->m22 * matrix.m23 + this->m23 * matrix.m33 + this->m24 * matrix.m43;
-			this->m24 = this->m21 * matrix.m14 + this->m22 * matrix.m24 + this->m23 * matrix.m34 + this->m24 * matrix.m44;
-
-			this->m31 = this->m31 * matrix.m11 + this->m32 * matrix.m21 + this->m33 * matrix.m31 + this->m34 * matrix.m41;
-			this->m32 = this->m31 * matrix.m12 + this->m32 * matrix.m22 + this->m33 * matrix.m32 + this->m34 * matrix.m42;
-			this->m33 = this->m31 * matrix.m13 + this->m32 * matrix.m23 + this->m33 * matrix.m33 + this->m34 * matrix.m43;
-			this->m34 = this->m31 * matrix.m14 + this->m32 * matrix.m24 + this->m33 * matrix.m34 + this->m34 * matrix.m44;
-
-			this->m41 = this->m41 * matrix.m11 + this->m42 * matrix.m21 + this->m43 * matrix.m31 + this->m44 * matrix.m41;
-			this->m42 = this->m41 * matrix.m12 + this->m42 * matrix.m22 + this->m43 * matrix.m32 + this->m44 * matrix.m42;
-			this->m43 = this->m41 * matrix.m13 + this->m42 * matrix.m23 + this->m43 * matrix.m33 + this->m44 * matrix.m43;
-			this->m44 = this->m41 * matrix.m14 + this->m42 * matrix.m24 + this->m43 * matrix.m34 + this->m44 * matrix.m44;
+			this->m11 = temp.m11 * matrix.m11 + temp.m12 * matrix.m21 + temp.m13 * matrix.m31 + temp.m14 * matrix.m41;
+			this->m12 = temp.m11 * matrix.m12 + temp.m12 * matrix.m22 + temp.m13 * matrix.m32 + temp.m14 * matrix.m42;
+			this->m13 = temp.m11 * matrix.m13 + temp.m12 * matrix.m23 + temp.m13 * matrix.m33 + temp.m14 * matrix.m43;
+			this->m14 = temp.m11 * matrix.m14 + temp.m12 * matrix.m24 + temp.m13 * matrix.m34 + temp.m14 * matrix.m44;
+					    																		
+			this->m21 = temp.m21 * matrix.m11 + temp.m22 * matrix.m21 + temp.m23 * matrix.m31 + temp.m24 * matrix.m41;
+			this->m22 = temp.m21 * matrix.m12 + temp.m22 * matrix.m22 + temp.m23 * matrix.m32 + temp.m24 * matrix.m42;
+			this->m23 = temp.m21 * matrix.m13 + temp.m22 * matrix.m23 + temp.m23 * matrix.m33 + temp.m24 * matrix.m43;
+			this->m24 = temp.m21 * matrix.m14 + temp.m22 * matrix.m24 + temp.m23 * matrix.m34 + temp.m24 * matrix.m44;
+					    																		
+			this->m31 = temp.m31 * matrix.m11 + temp.m32 * matrix.m21 + temp.m33 * matrix.m31 + temp.m34 * matrix.m41;
+			this->m32 = temp.m31 * matrix.m12 + temp.m32 * matrix.m22 + temp.m33 * matrix.m32 + temp.m34 * matrix.m42;
+			this->m33 = temp.m31 * matrix.m13 + temp.m32 * matrix.m23 + temp.m33 * matrix.m33 + temp.m34 * matrix.m43;
+			this->m34 = temp.m31 * matrix.m14 + temp.m32 * matrix.m24 + temp.m33 * matrix.m34 + temp.m34 * matrix.m44;
+					    																		
+			this->m41 = temp.m41 * matrix.m11 + temp.m42 * matrix.m21 + temp.m43 * matrix.m31 + temp.m44 * matrix.m41;
+			this->m42 = temp.m41 * matrix.m12 + temp.m42 * matrix.m22 + temp.m43 * matrix.m32 + temp.m44 * matrix.m42;
+			this->m43 = temp.m41 * matrix.m13 + temp.m42 * matrix.m23 + temp.m43 * matrix.m33 + temp.m44 * matrix.m43;
+			this->m44 = temp.m41 * matrix.m14 + temp.m42 * matrix.m24 + temp.m43 * matrix.m34 + temp.m44 * matrix.m44;
 
 			return *this;
 		}
-
-
 
 		inline Matrix4x4 operator+(const Matrix4x4& matrix) const
 		{
@@ -308,9 +309,10 @@ namespace Engine::Math
 			return matrix;
 		}
 
-		//static Matrix4x4 FromOrientation(Quaternion q)
-		//{
-		//}
+		static Matrix4x4 FromOrientation(Quaternion quat)
+		{
+
+		}
 
 		static Matrix4x4 FromView(Vec3 vector)
 		{

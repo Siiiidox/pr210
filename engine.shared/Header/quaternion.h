@@ -86,54 +86,57 @@ namespace Engine::Math
 			return (quat - *this).SqrMagnitude();
 		}
 
-		inline Quaternion& operator+=(const Quaternion& rhs)
+		inline Quaternion& operator+=(const Quaternion& quat)
 		{
-			this->x += rhs.x;
-			this->y += rhs.y;
-			this->z += rhs.z;
-			this->w += rhs.w;
+			this->x += quat.x;
+			this->y += quat.y;
+			this->z += quat.z;
+			this->w += quat.w;
 			return *this;
 		}
-		inline Quaternion& operator-=(const Quaternion& rhs)
+		inline Quaternion& operator-=(const Quaternion& quat)
 		{
-			this->x -= rhs.x;
-			this->y -= rhs.y;
-			this->z -= rhs.z;
-			this->w -= rhs.w;
+			this->x -= quat.x;
+			this->y -= quat.y;
+			this->z -= quat.z;
+			this->w -= quat.w;
 			return *this;
 		}
-		inline Quaternion& operator*=(const Quaternion& rhs)
+		inline Quaternion& operator*=(const Quaternion& quat)
 		{
-			this->x *= rhs.x;
-			this->y *= rhs.y;
-			this->z *= rhs.z;
-			this->w *= rhs.w;
+			Quaternion temp = *this;
+
+			this->x = temp.w * quat.x + temp.x * quat.w + temp.y * quat.z - temp.z * quat.y;
+			this->y = temp.w * quat.y + temp.y * quat.w + temp.z * quat.x - temp.x * quat.z;
+			this->z = temp.w * quat.z + temp.z * quat.w + temp.x * quat.y - temp.y * quat.x;
+			this->w = temp.w * quat.w - temp.x * quat.x - temp.y * quat.y - temp.z * quat.z;
+
 			return *this;
 		}
-		inline Quaternion& operator/=(const Quaternion& rhs)
+		inline Quaternion& operator/=(const Quaternion& quat)
 		{
-			assert(rhs != Quaternion::ZERO);
-			this->x /= rhs.x;
-			this->y /= rhs.y;
-			this->z /= rhs.z;
-			this->w /= rhs.w;
+			assert(quat != Quaternion::ZERO);
+			this->x /= quat.x;
+			this->y /= quat.y;
+			this->z /= quat.z;
+			this->w /= quat.w;
 			return *this;
 		}
-		inline Quaternion& operator*=(const real rhs)
+		inline Quaternion& operator*=(const real quat)
 		{
-			this->x *= rhs;
-			this->y *= rhs;
-			this->z *= rhs;
-			this->w *= rhs;
+			this->x *= quat;
+			this->y *= quat;
+			this->z *= quat;
+			this->w *= quat;
 			return *this;
 		}
-		inline Quaternion& operator/=(const real rhs)
+		inline Quaternion& operator/=(const real quat)
 		{
-			assert(rhs != static_cast<real>(0.0));
-			this->x /= rhs;
-			this->y /= rhs;
-			this->z /= rhs;
-			this->w /= rhs;
+			assert(quat != static_cast<real>(0.0));
+			this->x /= quat;
+			this->y /= quat;
+			this->z /= quat;
+			this->w /= quat;
 			return *this;
 		}
 
@@ -184,6 +187,31 @@ namespace Engine::Math
 		inline Quaternion operator-()
 		{
 			return Quaternion{ -x, -y , -z, -w };
+		}
+
+		static Quaternion FromAngleAxis(real angle, const Vec3& axis)
+		{
+			real halfAngle = angle * static_cast<real>(0.5);
+			real tempSin = 				
+#ifdef DOUBLEPRECISION
+				sin(halfAngle);
+#else
+				sinf(halfAngle);
+#endif
+			real tempCos = 
+#ifdef DOUBLEPRECISION
+				cos(halfAngle);
+#else
+				cosf(halfAngle);
+#endif
+
+			return Quaternion
+			{
+				axis.x * tempSin,
+				axis.y * tempSin,
+				axis.z * tempSin,
+				tempCos
+			};
 		}
 	};
 }
