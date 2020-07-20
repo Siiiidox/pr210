@@ -192,13 +192,13 @@ namespace Engine::Math
 		static Quaternion FromAngleAxis(real angle, const Vec3& axis)
 		{
 			real halfAngle = angle * static_cast<real>(0.5);
-			real tempSin = 				
+			real tempSin =
 #ifdef DOUBLEPRECISION
 				sin(halfAngle);
 #else
 				sinf(halfAngle);
 #endif
-			real tempCos = 
+			real tempCos =
 #ifdef DOUBLEPRECISION
 				cos(halfAngle);
 #else
@@ -212,6 +212,22 @@ namespace Engine::Math
 				axis.z * tempSin,
 				tempCos
 			};
+		}
+
+		inline bool Equals(const Quaternion& quat) const
+		{
+			return *this == quat;
+		}
+		inline bool Equals(const Quaternion& quat, const real tolerance) const
+		{
+			real dot = this->Dot(quat);
+			real angle =
+#ifdef DOUBLEPRECISION
+				acos(static_cast<real>(2.0) * dot * dot - static_cast<real>(1.0));
+#else
+				acosf(static_cast<real>(2.0) * dot * dot - static_cast<real>(1.0));
+#endif
+			return abs(angle) <= tolerance;
 		}
 	};
 }
