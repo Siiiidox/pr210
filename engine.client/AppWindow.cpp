@@ -104,3 +104,15 @@ bool AppWindow::MessagePump()
 	}
 	return true;
 }
+
+bool Engine::Core::AppWindow::GetClientSize(ui32& width, ui32& height)
+{
+	RECT rect;
+	if (GetClientRect(hwnd, &rect))
+	{
+		width = rect.right - rect.left;
+		height = rect.bottom - rect.top;
+		return true;
+	}
+	return false;
+}

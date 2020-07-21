@@ -154,7 +154,7 @@ namespace Engine::Math
 				this->w * q.x + this->x * q.w + this->y * q.z - this->z * q.y,
 				this->w * q.y + this->y * q.w + this->z * q.x - this->x * q.z,
 				this->w * q.z + this->z * q.w + this->x * q.y - this->y * q.x
-			}
+			};
 		}
 		inline Vec3 operator*(const Vec3& vec) const
 		{

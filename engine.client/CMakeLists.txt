@@ -16,6 +16,7 @@ target_sources(
         "${CMAKE_CURRENT_SOURCE_DIR}/appwindow.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/client.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/d3d11renderer.cpp"
 )
 
 # set additional target properties
@@ -23,7 +24,8 @@ set_target_properties(${TARGET_NAME} PROPERTIES LINKER_LANGUAGE CXX DEBUG_POSTFI
 
 # link libraries against the target
 target_link_libraries(${TARGET_NAME}
-    engine.shared)
+    engine.shared
+    D3D11 DXGI)
 
 # additional includes for target
 target_include_directories(${TARGET_NAME} PRIVATE
