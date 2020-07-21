@@ -19,6 +19,9 @@ namespace Engine::Graphics
 		ID3D11RenderTargetView* rtv = nullptr;
 
 		FLOAT clearColor[4] = { 0.529411f, 0.807843f, 0.921686f, 1.0f };
+		ID3D11Buffer* QuadVertexBuffer = nullptr;
+		ID3D11Buffer* QuadIndexBuffer = nullptr;
+		void GenerateQuad();
 	public:
 		bool Init(Engine::Core::AppWindow &window);
 		void BeginScene();

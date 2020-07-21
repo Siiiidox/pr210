@@ -13,7 +13,7 @@ target_sources(
     PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/client.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/d3d11renderer.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/appWindow.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/appwindow.h"
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/appwindow.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp"

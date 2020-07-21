@@ -17,6 +17,7 @@ target_sources(
         "${CMAKE_CURRENT_SOURCE_DIR}/mathutils.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/quaternion.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/util.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/color.h"
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/vec3.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/vec2.cpp"
