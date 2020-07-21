@@ -7,7 +7,7 @@ cmake_minimum_required (VERSION 3.9)
 # Add source to this project's executable.
 add_executable(${TARGET_NAME} "../res/appicon.ico" "../res/resources.rc")
 
-target_link_libraries(${TARGET_NAME} PUBLIC engine.shared)
+target_link_libraries(${TARGET_NAME} PUBLIC engine.shared D3D11 DXGI)
 
 # add sources to target
 target_sources(
@@ -16,10 +16,12 @@ target_sources(
         "${CMAKE_CURRENT_SOURCE_DIR}/Header/appinfo.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/Header/application.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/Header/applicationWindow.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Header/d3d11renderer.h"
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/CPP/main.cpp" 
         "${CMAKE_CURRENT_SOURCE_DIR}/CPP/application.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/CPP/applicationWindow.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/CPP/d3d11renderer.cpp"
 )
 
 target_include_directories(

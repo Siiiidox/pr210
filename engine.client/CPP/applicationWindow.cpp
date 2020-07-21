@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "applicationWindow.h"
 #include "appinfo.h"
 
@@ -95,5 +97,26 @@ bool ApplicationWindow::MessagePump()
 		DispatchMessage(&msg);
 	}
 	return true;
+}
+
+bool ApplicationWindow::GetClientSize(ui32& width, ui32& height)
+{
+	RECT rect = {};
+	if (GetClientRect(hwnd, &rect))
+	{
+		width = rect.right - rect.left;
+		height = rect.bottom - rect.top;
+		return true;
+	}
+	else
+	{
+		printf("Caught Error: GetClientRect() FAILED!\n");
+		return false;
+	}
+}
+
+ui64 ApplicationWindow::GetHandle()
+{
+	return reinterpret_cast<ui64>(this->hwnd);
 }
 

@@ -15,6 +15,7 @@ target_sources(
         "${CMAKE_CURRENT_SOURCE_DIR}/Header/matrix4x4.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/Header/quaternion.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/Header/mathUtils.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Header/utils.h"
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/CPP/vec2.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/CPP/vec3.cpp"

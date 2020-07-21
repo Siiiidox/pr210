@@ -14,4 +14,6 @@ public:
 	void Minimize();
 	void Resize();
 	bool MessagePump();
+	bool GetClientSize(ui32& width, ui32& height);
+	ui64 GetHandle();
 };
