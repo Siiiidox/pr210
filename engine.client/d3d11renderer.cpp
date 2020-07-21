@@ -27,8 +27,8 @@ void Engine::Graphics::D3D11Renderer::GenerateQuad()
 	};
 	int indices[6] =
 	{
-		0,1,2,
-		1,3,2
+		0,2,1,
+		1,2,3
 	};
 
 	//Create Vertex Buffer Description
