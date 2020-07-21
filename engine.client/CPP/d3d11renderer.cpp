@@ -95,14 +95,14 @@ void Engine::Graphics::D3D11Renderer::RenderQuad()
 void Engine::Graphics::D3D11Renderer::CreateShader()
 {
 	ID3DBlob* vertexShaderBlob = nullptr;
-	if (FAILED(D3DReadFileToBlob(L"../bin/data/shd/vertexDefault.shader", &vertexShaderBlob)))
+	if (FAILED(D3DReadFileToBlob(L"./data/shd/vertexDefault.shader", &vertexShaderBlob)))
 	{
 		printf("Caught Error: D3DReadFileToBlob(vertex) FAILED!\n");
 		return;
 	}
 
 	ID3DBlob* indexShaderBlob = nullptr;
-	if (FAILED(D3DReadFileToBlob(L"../bin/data/shd/pixelDefault.shader", &indexShaderBlob)))
+	if (FAILED(D3DReadFileToBlob(L"./data/shd/pixelDefault.shader", &indexShaderBlob)))
 	{
 		printf("Caught Error: D3DReadFileToBlob(index) FAILED!\n");
 		return;
