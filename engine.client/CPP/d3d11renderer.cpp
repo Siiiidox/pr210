@@ -2,7 +2,70 @@
 
 #include "d3d11renderer.h"
 #include "utils.h"
+#include "vec3.h"
+#include "vec2.h"
+#include "color.h"
 
+
+struct vertexType
+{
+	Engine::Math::Vec3 position;
+	Engine::Utils::FloatColor color;
+	Engine::Math::Vec3 normal;
+	Engine::Math::Vec2 textCoords;
+};
+
+void Engine::Graphics::D3D11Renderer::GenerateQuad()
+{
+	vertexType vertices[4] =
+	{
+		{ Engine::Math::Vec3 {-0.5f, -0.5f, 0.f }, Engine::Utils::FloatColor { .5f,.5f,.5f,.1f }, Engine::Math::Vec3 { 0.f, 0.f, 1.f }, Engine::Math::Vec2{ 0.f, 0.f} },
+		{ Engine::Math::Vec3 { 0.5f, -0.5f, 0.f }, Engine::Utils::FloatColor { .5f,.5f,.5f,.1f }, Engine::Math::Vec3 { 0.f, 0.f, 1.f }, Engine::Math::Vec2{ 1.f, 0.f} },
+		{ Engine::Math::Vec3 { -0.5f, 0.5f, 0.f }, Engine::Utils::FloatColor { .5f,.5f,.5f,.1f }, Engine::Math::Vec3 { 0.f, 0.f, 1.f }, Engine::Math::Vec2{ 0.f, 1.f} },
+		{ Engine::Math::Vec3 { 0.5f, 0.5f, 0.f }, Engine::Utils::FloatColor { .5f,.5f,.5f,.1f }, Engine::Math::Vec3 { 0.f, 0.f, 1.f }, Engine::Math::Vec2{ 1.f, 1.f} }
+	};
+
+	int index[6] = { 0, 2, 1, 1, 2, 3 };
+
+
+	D3D11_BUFFER_DESC vertexBufferDesc = { };
+	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	vertexBufferDesc.ByteWidth = sizeof(vertices);
+	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertexBufferDesc.CPUAccessFlags = 0;
+	vertexBufferDesc.MiscFlags = 0;
+	vertexBufferDesc.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA vertexResourceData = { };
+	vertexResourceData.pSysMem = &vertices;
+	vertexResourceData.SysMemPitch = 0;
+	vertexResourceData.SysMemSlicePitch = 0;
+
+	if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexResourceData, &quadVertexBuffer)))
+	{
+		printf("Caught Error: device->CreateBuffer(vertex) FAILED!\n");
+		return;
+	}
+
+	D3D11_BUFFER_DESC indexBufferDesc = { };
+	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	indexBufferDesc.ByteWidth = sizeof(index);
+	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	indexBufferDesc.CPUAccessFlags = 0;
+	indexBufferDesc.MiscFlags = 0;
+	indexBufferDesc.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA indexResourceData = { };
+	indexResourceData.pSysMem = &vertices;
+	indexResourceData.SysMemPitch = 0;
+	indexResourceData.SysMemSlicePitch = 0;
+
+	if(FAILED(device->CreateBuffer(&vertexBufferDesc, &indexResourceData, &quadIndexBuffer)))
+	{
+		printf("Caught Error: device->CreateBuffer(index) FAILED!\n");
+		return;
+	}
+}
 
 bool Engine::Graphics::D3D11Renderer::Init(ApplicationWindow& window)
 {
@@ -101,12 +164,12 @@ bool Engine::Graphics::D3D11Renderer::Init(ApplicationWindow& window)
 	swapChainDesc.Flags = 0;
 
 
-	D3D_FEATURE_LEVEL featueLevel = D3D_FEATURE_LEVEL_11_0;
+	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
 	if (FAILED(D3D11CreateDeviceAndSwapChain(0
 		, D3D_DRIVER_TYPE_HARDWARE
 		, 0
 		, D3D11_CREATE_DEVICE_DEBUG
-		, &featueLevel
+		, &featureLevel
 		, 1
 		, D3D11_SDK_VERSION
 		, &swapChainDesc
@@ -145,17 +208,21 @@ bool Engine::Graphics::D3D11Renderer::Init(ApplicationWindow& window)
 		1.f
 	};
 	immediateContext->RSSetViewports(1, &viewport);
+
+	GenerateQuad();
 	return true;
 }
 
 void Engine::Graphics::D3D11Renderer::Shutdown()
 {
-	if(swapChain)
+	if (swapChain)
 	{
 		swapChain->SetFullscreenState(false, nullptr);
 	}
 
-	SAFERELEASE(targetView); 
+	SAFERELEASE(quadVertexBuffer);
+
+	SAFERELEASE(targetView);
 	SAFERELEASE(immediateContext);
 	SAFERELEASE(device);
 	SAFERELEASE(swapChain);

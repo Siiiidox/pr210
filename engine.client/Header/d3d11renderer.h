@@ -18,6 +18,10 @@ namespace Engine::Graphics
 		ID3D11DeviceContext* immediateContext = nullptr;
 		ID3D11RenderTargetView* targetView = nullptr;
 		FLOAT clearColor[4] = { 0.f, 0.8f, 1.f, 1.f };
+
+		ID3D11Buffer* quadVertexBuffer = nullptr;
+		ID3D11Buffer* quadIndexBuffer = nullptr;
+		void GenerateQuad();
 	public:
 		bool Init(ApplicationWindow& window);
 		void BeginScene();
