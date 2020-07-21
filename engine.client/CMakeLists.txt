@@ -27,7 +27,7 @@ set_target_properties(${TARGET_NAME} PROPERTIES LINKER_LANGUAGE CXX DEBUG_POSTFI
 # link libraries against the target
 target_link_libraries(${TARGET_NAME}
     engine.shared
-    D3D11 DXGI)
+    D3D11 DXGI D3DCompiler)
 
 # additional includes for target
 target_include_directories(${TARGET_NAME} PRIVATE

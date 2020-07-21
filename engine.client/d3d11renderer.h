@@ -19,13 +19,20 @@ namespace Engine::Graphics
 		ID3D11RenderTargetView* rtv = nullptr;
 
 		FLOAT clearColor[4] = { 0.529411f, 0.807843f, 0.921686f, 1.0f };
+		//Buffers
 		ID3D11Buffer* QuadVertexBuffer = nullptr;
 		ID3D11Buffer* QuadIndexBuffer = nullptr;
+		//Shaders
+		ID3D11VertexShader* vertexShader = nullptr;
+		ID3D11InputLayout* vertexLayout = nullptr;
+		ID3D11PixelShader* pixelShader = nullptr;
 		void GenerateQuad();
 	public:
 		bool Init(Engine::Core::AppWindow &window);
+		void CreateShader();
 		void BeginScene();
 		void EndScene();
 		void Shutdown();
+		void RenderQuad();
 	};
 }

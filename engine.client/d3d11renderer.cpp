@@ -4,6 +4,7 @@
 #include "vec3.h"
 #include "vec2.h"
 #include "color.h"
+#include <d3dcompiler.h>
 using namespace Engine::Math;
 using namespace Engine::Utils;
 
@@ -19,15 +20,15 @@ void Engine::Graphics::D3D11Renderer::GenerateQuad()
 {
 	VertexType vertices[4] = 
 	{ 
-		{ Vec3{-0.5f, -0.5f, 0.0f}, FloatColor{1, 0, 0, 1}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,1.f} },
-		{ Vec3{0.5f, -0.5f, 0.0f}, FloatColor{1, 0, 0, 1}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} },
-		{ Vec3{-0.5f, 0.5f, 0.0f}, FloatColor{1, 0, 0, 1}, Vec3{0.f, 0.f, -1.f}, Vec2{0.f,1.f}},
-		{ Vec3{0.5f, 0.5f, 0.0f}, FloatColor{1, 0, 0, 1}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} }
+		{ Vec3{-0.5f, -0.5f, 0.0f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,1.f} },
+		{ Vec3{0.5f, -0.5f, 0.0f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} },
+		{ Vec3{-0.5f, 0.5f, 0.0f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{0.f,1.f}},
+		{ Vec3{0.5f, 0.5f, 0.0f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} }
 	};
 	int indices[6] =
 	{
-		0,2,1,
-		1,2,3
+		0,1,2,
+		1,3,2
 	};
 
 	//Create Vertex Buffer Description
@@ -214,7 +215,68 @@ bool Engine::Graphics::D3D11Renderer::Init(Engine::Core::AppWindow& window)
 	context->RSSetViewports(1, &viewport);
 
 	GenerateQuad();
+	CreateShader();
 	return true;
+}
+
+void Engine::Graphics::D3D11Renderer::CreateShader()
+{
+	ID3DBlob* VertexShaderBlob = nullptr;
+	if (FAILED(D3DReadFileToBlob(L"./data/shd/vs_default.shader", &VertexShaderBlob)))
+	{
+		MessageBoxA(NULL, "Could not load vertex shader", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return;
+	}
+	ID3DBlob* pixelShaderBlob = nullptr;
+	if (FAILED(D3DReadFileToBlob(L"./data/shd/ps_default.shader", &pixelShaderBlob)))
+	{
+		MessageBoxA(NULL, "Could not load pixel shader", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return;
+	}
+	if (FAILED(device->CreateVertexShader(VertexShaderBlob->GetBufferPointer(), VertexShaderBlob->GetBufferSize(), nullptr, &vertexShader)))
+	{
+		MessageBoxA(NULL, "Could not create pixel shader", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return;
+	}
+	if (FAILED(device->CreatePixelShader(pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize(), nullptr, &pixelShader)))
+	{
+		MessageBoxA(NULL, "Could not create pixel shader", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return;
+	}
+	D3D11_INPUT_ELEMENT_DESC vertexElemDesc[4] = { };
+	vertexElemDesc[0].Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexElemDesc[0].InputSlot = 0;
+	vertexElemDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	vertexElemDesc[0].AlignedByteOffset = 0;
+	vertexElemDesc[0].SemanticIndex = 0;
+	vertexElemDesc[0].SemanticName = "POSITION";
+
+	vertexElemDesc[1].Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT;
+	vertexElemDesc[1].InputSlot = 0;
+	vertexElemDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	vertexElemDesc[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	vertexElemDesc[1].SemanticIndex = 0;
+	vertexElemDesc[1].SemanticName = "COLOR";
+
+	vertexElemDesc[2].Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexElemDesc[2].InputSlot = 0;
+	vertexElemDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	vertexElemDesc[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	vertexElemDesc[2].SemanticIndex = 0;
+	vertexElemDesc[2].SemanticName = "NORMAL";
+
+	vertexElemDesc[3].Format = DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT;
+	vertexElemDesc[3].InputSlot = 0;
+	vertexElemDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	vertexElemDesc[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	vertexElemDesc[3].SemanticIndex = 0;
+	vertexElemDesc[3].SemanticName = "TEXCOORD";
+
+	if (FAILED(device->CreateInputLayout(vertexElemDesc, sizeof(vertexElemDesc) / sizeof(D3D11_INPUT_ELEMENT_DESC), VertexShaderBlob->GetBufferPointer(), VertexShaderBlob->GetBufferSize(), &vertexLayout)))
+	{
+		MessageBoxA(NULL, "Could not create vertex input layout", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return;
+	}
 }
 
 void Engine::Graphics::D3D11Renderer::BeginScene()
@@ -242,4 +304,35 @@ void Engine::Graphics::D3D11Renderer::Shutdown()
 	SAFERELEASE(context);
 	SAFERELEASE(device);
 	SAFERELEASE(swapChain);
+}
+
+void Engine::Graphics::D3D11Renderer::RenderQuad()
+{
+
+	//INPUT ASSEMBLER STAGE
+
+	ui32 stride = sizeof(VertexType);
+	ui32 offset = 0;
+
+	context->IASetVertexBuffers(0, 1, &QuadVertexBuffer, &stride, &offset);
+
+	context->IASetIndexBuffer(QuadIndexBuffer, DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	context->IASetInputLayout(vertexLayout);
+
+	//VERTEX SHADER STAGE
+
+	context->VSSetShader(vertexShader, nullptr, 0);
+
+	//PIXEL SHADER STAGE
+
+	context->PSSetShader(pixelShader, nullptr, 0);
+
+	//OUTPUT MERGER STAGE
+
+	context->OMSetRenderTargets(1, &rtv, nullptr);
+
+	context->DrawIndexed(6, 0, 0);
 }

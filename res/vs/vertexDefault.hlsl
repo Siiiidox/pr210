@@ -3,6 +3,8 @@
 ps_in VS_Main(vs_in input)
 {
     ps_in output;
-    output.position = float4(0.0, 0.0, 0.0, 1.0);
+    output.position = input.position;
+    output.color = input.color;
+    output.texCoord = input.texCoord;
     return output;
 }

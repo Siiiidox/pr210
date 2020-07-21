@@ -22,6 +22,7 @@ void Application::Run()
 	while(this->appState == AppState::Running)
 	{
 		renderer.BeginScene();
+		renderer.RenderQuad();
 		renderer.EndScene();
 		if (!window.MessagePump())
 		{
