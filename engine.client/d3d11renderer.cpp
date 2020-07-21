@@ -1,7 +1,7 @@
 #include "d3d11renderer.h"
 #include "util.h"
 #include <iostream>
-
+#define NO_STDIO_REDIRECT
 using namespace Engine::Utils;
 bool Engine::Graphics::D3D11Renderer::Init(Engine::Core::AppWindow& window)
 {
@@ -54,13 +54,13 @@ bool Engine::Graphics::D3D11Renderer::Init(Engine::Core::AppWindow& window)
 		return false;
 	}
 	ui32 refreshNum = 0;
-	ui32 refreshDenum = 0;
+	ui32 refreshDenom = 0;
 	for (ui32 i = 0; i < numModes; i++)
 	{
 		if (modes[i].Width == width && modes[i].Height == height)
 		{
 			refreshNum = modes[i].RefreshRate.Numerator;
-			refreshDenum = modes[i].RefreshRate.Denominator;
+			refreshDenom = modes[i].RefreshRate.Denominator;
 		}
 	}
 	DXGI_ADAPTER_DESC1 adapterDesc = {};
@@ -73,23 +73,93 @@ bool Engine::Graphics::D3D11Renderer::Init(Engine::Core::AppWindow& window)
 	{
 		char adapterDescText[128];
 		wcstombs(adapterDescText, adapterDesc.Description, 128);
-		printf("Graphics Device: %s", adapterDescText);
-		printf("Graphics available Memory: %d", static_cast<ui32>(adapterDesc.DedicatedVideoMemory * 9.5367E-7f));
+		printf("Graphics Device: %s\n", adapterDescText);
+		printf("Graphics available Memory: %d\n", static_cast<ui32>(adapterDesc.DedicatedVideoMemory * 9.5367E-7f));
 	}
 	SAFEDELETEARR(modes);
+
 	SAFERELEASE(output);
 	SAFERELEASE(adapter);
 	SAFERELEASE(factory);
 
+	DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
+	//Double buffer
+	swapChainDesc.BufferCount = 2;
+	//Set Buffersize to client application size
+	swapChainDesc.BufferDesc.Width = width;
+	swapChainDesc.BufferDesc.Height = height;
+	//Set format to requested mode format
+	swapChainDesc.BufferDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferDesc.RefreshRate.Numerator = (vsyncEnable ? refreshNum : 0);
+	swapChainDesc.BufferDesc.RefreshRate.Denominator = (vsyncEnable && refreshDenom > 0 ? refreshDenom : 1);
+	swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.OutputWindow = reinterpret_cast<HWND>(window.GetHandle());
+	swapChainDesc.SampleDesc.Count = 1;
+	swapChainDesc.SampleDesc.Quality = 0;
+	swapChainDesc.Windowed = true;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapChainDesc.Flags = 0;
+
+	D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
+	if (FAILED(D3D11CreateDeviceAndSwapChain(0, D3D_DRIVER_TYPE_HARDWARE, 0, D3D11_CREATE_DEVICE_DEBUG, &featureLevel, 1, D3D11_SDK_VERSION, &swapChainDesc, &swapChain, &device, nullptr, &context)))
+	{
+		MessageBoxA(NULL, "Could not create device and swap chain", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return false;
+	}
+	
+	ID3D11Texture2D* surface = nullptr;
+	if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&surface))))
+	{
+		MessageBoxA(NULL, "Could not get back-buffer interface", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return false;
+	}
+
+	D3D11_RENDER_TARGET_VIEW_DESC RTVdesc = {};
+	//RTVdesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+	//RTVdesc.
+	if (FAILED(device->CreateRenderTargetView(surface, 0, &rtv)))
+	{
+		MessageBoxA(NULL, "Could not create render target view", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return false;
+	}
+	SAFERELEASE(surface);
+	ID3D10DepthStencilView * stencilView = nullptr;
+	context->OMSetRenderTargets(1, &rtv, nullptr);
+	D3D11_VIEWPORT viewport
+	{
+		0.0f,
+		0.0f,
+		static_cast<FLOAT>(width),
+		static_cast<FLOAT>(height),
+		0.0f,
+		1.0f
+	};
+	context->RSSetViewports(1, &viewport);
 	return true;
 }
 
-void Engine::Graphics::D3D11Renderer::Run()
+void Engine::Graphics::D3D11Renderer::BeginScene()
 {
+	context->ClearRenderTargetView(rtv, clearColor);
+}
 
+void Engine::Graphics::D3D11Renderer::EndScene()
+{
+	if (vsyncEnable)
+		swapChain->Present(1, 0);
+	else
+		swapChain->Present(0, 0);
+	
 }
 
 void Engine::Graphics::D3D11Renderer::Shutdown()
 {
-
+	if (swapChain)
+		swapChain->SetFullscreenState(false, nullptr);
+	SAFERELEASE(rtv);
+	SAFERELEASE(context);
+	SAFERELEASE(device);
+	SAFERELEASE(swapChain);
 }
