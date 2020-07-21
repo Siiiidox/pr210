@@ -7,7 +7,7 @@ cmake_minimum_required (VERSION 3.9)
 # Add source to this project's executable.
 add_executable(${TARGET_NAME} "../res/appicon.ico" "../res/resources.rc")
 
-target_link_libraries(${TARGET_NAME} PUBLIC engine.shared D3D11 DXGI)
+target_link_libraries(${TARGET_NAME} PUBLIC engine.shared D3D11 DXGI D3DCompiler)
 
 # add sources to target
 target_sources(

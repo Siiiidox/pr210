@@ -21,11 +21,18 @@ namespace Engine::Graphics
 
 		ID3D11Buffer* quadVertexBuffer = nullptr;
 		ID3D11Buffer* quadIndexBuffer = nullptr;
+		//Shader
+		ID3D11VertexShader* vertexShader = nullptr;
+		ID3D11InputLayout* vertexLayout = nullptr;
+		ID3D11PixelShader* pixelShader = nullptr;
 		void GenerateQuad();
 	public:
 		bool Init(ApplicationWindow& window);
 		void BeginScene();
 		void EndScene();
 		void Shutdown();
+
+		void RenderQuad();
+		void CreateShader();
 	};
 }

@@ -8,7 +8,7 @@ void Application::Init()
 	if(!renderer.Init(window))
 	{
 		return; 
-	}	
+	}
 	this->currentState = ApplicationState::Running;
 }
 
@@ -22,10 +22,7 @@ void Application::Run()
 			this->currentState = ApplicationState::Stopped;
 		}
 		renderer.BeginScene();
-
-
-
-
+		renderer.RenderQuad();
 
 		renderer.EndScene();
 	}
