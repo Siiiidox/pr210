@@ -312,7 +312,11 @@ void Engine::Graphics::D3D11Renderer::Shutdown()
 		swapChain->SetFullscreenState(false, nullptr);
 	}
 
+	SAFERELEASE(vertexLayout);
+	SAFERELEASE(vertexShader);
+	SAFERELEASE(pixelShader);
 	SAFERELEASE(quadVertexBuffer);
+	SAFERELEASE(quadIndexBuffer);
 
 	SAFERELEASE(targetView);
 	SAFERELEASE(immediateContext);
