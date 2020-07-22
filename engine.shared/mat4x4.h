@@ -8,6 +8,7 @@
 #include "types.h"
 #include "vec3.h"
 #include "mathutils.h"
+#include "quaternion.h"
 
 namespace Engine::Math
 {
@@ -284,10 +285,40 @@ namespace Engine::Math
 				static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(1.0),
 			};
 		}
-		//static Mat4x4 FromOrientation(Quaternion q)
-		//{
-		//
-		//}
+		static Mat4x4 FromOrientation(Quaternion q)
+		{
+			Mat4x4 m = Mat4x4::Identity;
+			real tx = q.x + q.x;
+			real ty = q.y + q.y;
+			real tz = q.z + q.z;
+
+			real twx = q.w * tx;
+			real twy = q.w * ty;
+			real twz = q.w * tz;
+
+			real txx = q.x * tx;
+			real txy = q.x * ty;
+			real txz = q.x * tz;
+
+			real tyy = q.y * ty;
+			real tyz = q.y * tz;
+
+			real tzz = tz * q.z;
+
+			m.m11 = static_cast<real>(1.0) - tyy + tzz;
+			m.m12 = txy - twz;
+			m.m13 = txz + twy;
+
+			m.m21 = txy + twz;
+			m.m22 = static_cast<real>(1.0) - txx + tzz;
+			m.m23 = tyz - twx;
+
+			m.m31 = txz - twy;
+			m.m32 = tyz + twx;
+			m.m33 = static_cast<real>(1.0) - txx + tyy;
+
+			return m;
+		}
 		static Mat4x4 FromView(Vec3 v)
 		{
 			Vec3 axisX = Vec3::UnitX;
@@ -315,17 +346,19 @@ namespace Engine::Math
 		static Mat4x4 FromPerspectiveFOV(real fov = static_cast<real>(75.0), real aspect = static_cast<real>(1.77778), real nearPlane = static_cast<real>(0.001), real farPlane = static_cast<real>(10000.0))
 		{
 #ifdef DOUBLEPRECISION
-			real S = static_cast<real>(1.0) / tan(fov / static_cast<real>(2.0) * AngleToRad());
+			real SY = static_cast<real>(1.0) / tan(fov / static_cast<real>(2.0) * AngleToRad());
 #else
-			real S = static_cast<real>(1.0) / tanf(fov / static_cast<real>(2.0) * AngleToRad());
+			real SY = static_cast<real>(1.0) / tanf(fov / static_cast<real>(2.0) * AngleToRad());
 #endif
+			real SX = SY / aspect;
 			return Mat4x4
 			{
-				S, static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0),
-				static_cast<real>(0.0), S, static_cast<real>(0.0), static_cast<real>(0.0),
+				SX, static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0),
+				static_cast<real>(0.0), SY, static_cast<real>(0.0), static_cast<real>(0.0),
 				static_cast<real>(0.0), static_cast<real>(0.0), farPlane / (nearPlane - farPlane), nearPlane * farPlane / (nearPlane - farPlane),
 				static_cast<real>(0.0), static_cast<real>(0.0), -1, static_cast<real>(0.0)
 			};
 		}
+
 	};
 }

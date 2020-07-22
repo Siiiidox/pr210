@@ -12,13 +12,18 @@ target_sources(
     ${TARGET_NAME}
     PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/client.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/d3d11renderer.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/appwindow.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/d3d11renderer.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/vertex.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/mesh.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/camera.h"
     PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}/appwindow.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/client.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/appwindow.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/d3d11renderer.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/mesh.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/camera.cpp"
 )
 
 # set additional target properties

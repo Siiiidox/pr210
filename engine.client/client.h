@@ -3,14 +3,16 @@
 // EXTERNAL INCLUDES
 // INTERNAL INCLUDES
 #include "appwindow.h"
-#include "d3d11renderer.h"
+#include "camera.h"
+#include "mesh.h"
 namespace Game::Client
 {
 	class Application
 	{
 	private:
-		Engine::Graphics::D3D11Renderer renderer;
 		Engine::Core::AppWindow window;
+		Camera camera;
+		Engine::Resources::Mesh testMesh;
 		enum class AppState
 		{
 			Started,

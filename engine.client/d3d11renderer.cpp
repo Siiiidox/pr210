@@ -3,8 +3,11 @@
 #include <iostream>
 #include "vec3.h"
 #include "vec2.h"
+#include "mat4x4.h"
 #include "color.h"
 #include <d3dcompiler.h>
+#include "vertex.h"
+
 using namespace Engine::Math;
 using namespace Engine::Utils;
 
@@ -16,14 +19,15 @@ struct VertexType
 	Vec2 texCoords;
 };
 
+GE_DEFINE_SINGLETON(Engine::Graphics::D3D11Renderer)
 void Engine::Graphics::D3D11Renderer::GenerateQuad()
 {
 	//Create the verices required to represent a quad
 	VertexType vertices[4] = 
 	{ 
 		{ Vec3{-0.5f, -0.5f, 0.0f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,1.f} },
-		{ Vec3{0.5f, -0.5f, 0.0f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} },
-		{ Vec3{-0.5f, 0.5f, 0.0f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{0.f,1.f}},
+		{ Vec3{0.5f, -0.5f, 0.0f}, FloatColor{0.f, 1.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} },
+		{ Vec3{-0.5f, 0.5f, 0.0f}, FloatColor{0.f, 0.f, 1.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{0.f,1.f}},
 		{ Vec3{0.5f, 0.5f, 0.0f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} }
 	};
 	//index the verices counterclock wise
@@ -137,7 +141,7 @@ bool Engine::Graphics::D3D11Renderer::Init(Engine::Core::AppWindow& window)
 		MessageBoxA(NULL, "Could not retrieve display modes", "ERROR", MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
-	ui32 width, height;
+	
 	//Needs to be client size as we don't want to draw over the windows head and border
 	if (!window.GetClientSize(width, height))
 	{
@@ -155,6 +159,7 @@ bool Engine::Graphics::D3D11Renderer::Init(Engine::Core::AppWindow& window)
 			refreshDenom = modes[i].RefreshRate.Denominator;
 		}
 	}
+	
 	//Let us retrieve the description for our Graphics card
 	DXGI_ADAPTER_DESC1 adapterDesc = {};
 	if (FAILED(adapter->GetDesc1(&adapterDesc)))
@@ -246,7 +251,13 @@ bool Engine::Graphics::D3D11Renderer::Init(Engine::Core::AppWindow& window)
 	};
 	context->RSSetViewports(1, &viewport);
 
-	GenerateQuad();
+	transformBuffer = CreateBuffer(BufferType::Constant, &Mat4x4::Zero, sizeof(Mat4x4), UsageType::Dynamic);
+	if (!transformBuffer)
+	{
+		MessageBoxA(NULL, "Could not create transform buffer", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return false;
+	}
+	//GenerateQuad();
 	CreateShader();
 	return true;
 }
@@ -332,6 +343,30 @@ void Engine::Graphics::D3D11Renderer::CreateShader()
 void Engine::Graphics::D3D11Renderer::BeginScene()
 {
 	context->ClearRenderTargetView(rtv, clearColor);
+
+	if (activeCamera)
+	{
+		D3D11_MAPPED_SUBRESOURCE camResource = {};
+		if (FAILED(context->Map(reinterpret_cast<ID3D11Resource*>(cameraBuffer), 0, D3D11_MAP_WRITE_DISCARD, 0, &camResource)))
+		{
+			MessageBoxA(NULL, "could not map transform buffer", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+			return;
+		}
+		Mat4x4* dataMat = reinterpret_cast<Mat4x4*>(camResource.pData);
+
+		Mat4x4 viewProjMat = Mat4x4::Identity;
+		if (activeCamera->cameraType == Camera::CameraType::Perspective)
+		{
+			viewProjMat = Mat4x4::FromPerspectiveFOV(activeCamera->h_fov, static_cast<real>(width) / static_cast<real>(height), activeCamera->near_plane, activeCamera->far_plane) * Mat4x4::FromView(activeCamera->transform.position);
+		}
+		else
+		{
+			viewProjMat = Mat4x4::FromOrthographic(static_cast<real>(width), static_cast<real>(height), activeCamera->near_plane, activeCamera->far_plane) * Mat4x4::FromView(activeCamera->transform.position);
+		}
+		if (dataMat)(*dataMat) = viewProjMat;
+
+		context->Unmap(reinterpret_cast<ID3D11Resource*>(cameraBuffer), 0);
+	}
 }
 
 void Engine::Graphics::D3D11Renderer::EndScene()
@@ -392,4 +427,129 @@ void Engine::Graphics::D3D11Renderer::RenderQuad()
 	context->OMSetRenderTargets(1, &rtv, nullptr);
 
 	context->DrawIndexed(6, 0, 0);
+}
+
+void Engine::Graphics::D3D11Renderer::RenderObject(Transform transform, int indexCount, GraphicsBufferPtr vertexBuffer, GraphicsBufferPtr indexBuffer)
+{
+	//INPUT ASSEMBLER STAGE
+
+	ui32 stride = sizeof(Vertex);
+	ui32 offset = 0;
+
+	Mat4x4 modelMat = Mat4x4::FromTranslation(transform.position) * Mat4x4::FromOrientation(transform.rotation) * Mat4x4::FromScale(transform.scale);
+
+	D3D11_MAPPED_SUBRESOURCE modelResource = {};
+	if (FAILED(context->Map(reinterpret_cast<ID3D11Resource*>(transformBuffer), 0, D3D11_MAP_WRITE_DISCARD, 0, &modelResource)))
+	{
+		MessageBoxA(NULL, "could not map transform buffer", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return;
+	}
+	Mat4x4* dataMat = reinterpret_cast<Mat4x4*>(modelResource.pData);
+	if(dataMat)(*dataMat) = modelMat;
+
+	context->Unmap(reinterpret_cast<ID3D11Resource*>(transformBuffer), 0);
+
+
+	context->VSSetConstantBuffers(0, 1, reinterpret_cast<ID3D11Buffer**>(&transformBuffer));
+
+	context->VSSetConstantBuffers(1, 1, reinterpret_cast<ID3D11Buffer**>(&cameraBuffer));
+
+	context->IASetVertexBuffers(0, 1, reinterpret_cast<ID3D11Buffer**>(&vertexBuffer), &stride, &offset);
+
+	context->IASetIndexBuffer(reinterpret_cast<ID3D11Buffer*>(indexBuffer), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	context->IASetInputLayout(vertexLayout);
+
+	//VERTEX SHADER STAGE
+
+	context->VSSetShader(vertexShader, nullptr, 0);
+
+	//PIXEL SHADER STAGE
+
+	context->PSSetShader(pixelShader, nullptr, 0);
+
+	//OUTPUT MERGER STAGE
+
+	context->OMSetRenderTargets(1, &rtv, nullptr);
+
+	context->DrawIndexed(indexCount, 0, 0);
+}
+
+void Engine::Graphics::D3D11Renderer::SetActiveCamera(const Camera& camera)
+{
+	if (!activeCamera)
+	{
+		activeCamera = &camera;
+
+		Mat4x4 cameraMat = Mat4x4::FromOrientation(activeCamera->transform.rotation);
+		Mat4x4 viewProjMat = Mat4x4::Identity;
+		if (activeCamera->cameraType == Camera::CameraType::Perspective)
+		{
+			viewProjMat = Mat4x4::FromPerspectiveFOV(activeCamera->h_fov, static_cast<real>(width) / static_cast<real>(height), activeCamera->near_plane, activeCamera->far_plane) * Mat4x4::FromView(activeCamera->transform.position);
+		}
+		else
+		{
+			viewProjMat = Mat4x4::FromOrthographic(static_cast<real>(width), static_cast<real>(height), activeCamera->near_plane, activeCamera->far_plane) * Mat4x4::FromView(activeCamera->transform.position);
+		}
+		cameraBuffer = CreateBuffer(BufferType::Constant, &viewProjMat, sizeof(Mat4x4), UsageType::Dynamic);
+		if (!cameraBuffer)
+		{
+			MessageBoxA(NULL, "Could not set camera", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		}
+	}
+}
+
+GraphicsBufferPtr Engine::Graphics::D3D11Renderer::CreateBuffer(BufferType type, const void* data, int dataSize, UsageType usage)
+{
+	D3D11_BUFFER_DESC bufferDesc = {};
+	switch (usage)
+	{
+	case UsageType::Dynamic:
+		bufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
+		break;
+	default:
+		bufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
+		break;
+	}
+	bufferDesc.ByteWidth = dataSize;
+
+	switch (type)
+	{
+	case BufferType::Vertex:
+		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		break;
+	case BufferType::Index:
+		bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		break;
+	case BufferType::Constant:
+		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		break;
+	default:
+		MessageBoxA(NULL, "invalid buffer type", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return nullptr;
+	}
+	if(type == BufferType::Constant)
+		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	else
+		bufferDesc.CPUAccessFlags = 0;
+	bufferDesc.MiscFlags = 0;
+	bufferDesc.StructureByteStride = 0;
+	/*
+	Create Vertex Buffer Resource
+	pSysMem the pointer to the data to be uploaded to the buffer
+	*/
+	D3D11_SUBRESOURCE_DATA bufferSubResource = {};
+	bufferSubResource.pSysMem = data;
+	bufferSubResource.SysMemPitch = 0;
+	bufferSubResource.SysMemSlicePitch = 0;
+	ID3D11Buffer* buffer = nullptr;
+	//Tell device to create Vertex Buffer and the data in subresource
+	if (FAILED(device->CreateBuffer(&bufferDesc, &bufferSubResource, &buffer)))
+	{
+		MessageBoxA(NULL, "Could not create vertex buffer", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return nullptr;
+	}
+	return reinterpret_cast<GraphicsBufferPtr>(buffer);
 }
