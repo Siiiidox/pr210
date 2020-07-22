@@ -6,6 +6,7 @@
 // INTERNAL INCLUDES
 #include "types.h"
 #include "vec3.h"
+#include "mathutils.h"
 
 namespace Engine::Math
 {
@@ -22,10 +23,10 @@ namespace Engine::Math
 		inline Quaternion(const Quaternion& q)
 			: Quaternion(q.x, q.y, q.z, q.w)
 		{ }
-		inline Quaternion(real x = static_cast<real>(1.0)
-			, real y = static_cast<real>(1.0)
-			, real z = static_cast<real>(1.0)
-			, real w = static_cast<real>(1.0)) :
+		inline Quaternion(real x = static_cast<real>(0.0)
+			, real y = static_cast<real>(0.0)
+			, real z = static_cast<real>(0.0)
+			, real w = static_cast<real>(0.0)) :
 			x(x),
 			y(y),
 			z(z),
@@ -206,12 +207,17 @@ namespace Engine::Math
 
 		inline Quaternion operator-() const
 		{
-			return Quaternion{ -x, -y, -z, -w };
+			return Quaternion{ -x, -y, -z, w };
 		}
 
 		static Quaternion FromAngleAxis(real angle, const Vec3& axis)
 		{
-			real halfAngle = angle * static_cast<real>(0.5);
+			Vec3 normAxis = axis;
+			if (!normAxis.Normalize())
+			{
+				return Quaternion::Zero;
+			}
+			real halfAngle = angle * static_cast<real>(0.5) * AngleToRad();
 #ifdef DOUBLEPRECISION 
 			real halfSin = sin(halfAngle);
 			real halfCos = cos(halfAngle);
@@ -221,9 +227,9 @@ namespace Engine::Math
 #endif
 			return Quaternion
 			{
-				halfSin * axis.x,
-				halfSin * axis.y,
-				halfSin * axis.z,
+				halfSin * normAxis.x,
+				halfSin * normAxis.y,
+				halfSin * normAxis.z,
 				halfCos
 			};
 		}

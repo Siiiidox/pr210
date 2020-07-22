@@ -1,8 +1,8 @@
 cbuffer modelConstant : register(b0)
 {
-	matrix transform;
+	float4x4 transform;
 };
 cbuffer cameraConstant : register(b1)
 {
-	matrix viewProj;
+	float4x4 viewProj;
 };

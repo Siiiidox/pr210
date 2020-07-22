@@ -236,9 +236,63 @@ bool Engine::Graphics::D3D11Renderer::Init(Engine::Core::AppWindow& window)
 	//Release the texture2D as we assigned it to the render target view
 	SAFERELEASE(surface);
 
-	ID3D10DepthStencilView * stencilView = nullptr;
+	ID3D11Texture2D* depthSurface = nullptr;
+	D3D11_TEXTURE2D_DESC depthBufferDesc = {};
+	depthBufferDesc.Format = DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+	depthBufferDesc.MipLevels = 1;
+	depthBufferDesc.ArraySize = 1;
+	depthBufferDesc.Width = width;
+	depthBufferDesc.Height = height;
+	depthBufferDesc.SampleDesc.Count = 1;
+	depthBufferDesc.SampleDesc.Quality = 0;
+	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	if (FAILED(device->CreateTexture2D(&depthBufferDesc, nullptr, &depthSurface)))
+	{
+		MessageBoxA(NULL, "Could not create depth buffer texture", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return false;
+	}
+	D3D11_DEPTH_STENCIL_DESC stencilDesc = {};
+	stencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	stencilDesc.DepthEnable = true;
+	stencilDesc.StencilEnable = false;
+	ID3D11DepthStencilState* depthState = nullptr;
+	if (FAILED(device->CreateDepthStencilState(&stencilDesc, &depthState)))
+	{
+		MessageBoxA(NULL, "Could not create depth buffer state", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return false;
+	}
+	context->OMSetDepthStencilState(depthState, 1);
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthViewDesc = {};
+	depthViewDesc.Format = DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+	depthViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	ID3D11DepthStencilView* depthView = nullptr;
+	if (FAILED(device->CreateDepthStencilView(depthSurface, &depthViewDesc, &depthView)))
+	{
+		MessageBoxA(NULL, "Could not create depth view", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return false;
+	}
+
 	//Set our rendertarget to the target view
-	context->OMSetRenderTargets(1, &rtv, nullptr);
+	context->OMSetRenderTargets(1, &rtv, depthView);
+
+	
+	
+	D3D11_RASTERIZER_DESC rasterDesc = {};
+	rasterDesc.FrontCounterClockwise = true;
+	rasterDesc.CullMode = wireframe ? D3D11_CULL_NONE : D3D11_CULL_BACK;
+	rasterDesc.MultisampleEnable = wireframe ? false : true;
+	rasterDesc.AntialiasedLineEnable = wireframe;
+	rasterDesc.FillMode = wireframe ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
+
+	if (FAILED(device->CreateRasterizerState(&rasterDesc, &rasterState)))
+	{
+		MessageBoxA(NULL, "Could not create raster State", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return false;
+	}
+
+	context->RSSetState(rasterState);
 	//Set our viewport to the size of our client size
 	D3D11_VIEWPORT viewport
 	{
@@ -435,7 +489,7 @@ void Engine::Graphics::D3D11Renderer::RenderObject(Transform transform, int inde
 
 	ui32 stride = sizeof(Vertex);
 	ui32 offset = 0;
-
+	//
 	Mat4x4 modelMat = Mat4x4::FromTranslation(transform.position) * Mat4x4::FromOrientation(transform.rotation) * Mat4x4::FromScale(transform.scale);
 
 	D3D11_MAPPED_SUBRESOURCE modelResource = {};
@@ -483,7 +537,7 @@ void Engine::Graphics::D3D11Renderer::SetActiveCamera(const Camera& camera)
 	{
 		activeCamera = &camera;
 
-		Mat4x4 cameraMat = Mat4x4::FromOrientation(activeCamera->transform.rotation);
+		//Mat4x4 cameraMat = Mat4x4::FromOrientation(activeCamera->transform.rotation);
 		Mat4x4 viewProjMat = Mat4x4::Identity;
 		if (activeCamera->cameraType == Camera::CameraType::Perspective)
 		{

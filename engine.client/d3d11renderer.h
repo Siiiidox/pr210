@@ -16,10 +16,14 @@ namespace Engine::Graphics
 		GE_DECLARE_SINGLETON(D3D11Renderer)
 	private:
 		bool vsyncEnable = true;
+		bool wireframe = false;
+
 		IDXGISwapChain* swapChain = nullptr;
 		//the render device
 		ID3D11Device* device = nullptr;
 		ID3D11DeviceContext* context = nullptr;
+
+		ID3D11RasterizerState* rasterState = nullptr;
 		//The view to render to
 		ID3D11RenderTargetView* rtv = nullptr;
 

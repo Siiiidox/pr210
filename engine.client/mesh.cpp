@@ -47,16 +47,17 @@ void Engine::Resources::Mesh::GenerateCube()
 	indexCount = 36;
 	Vertex vertices[8] =
 	{
-		{ Vec3{-0.5f,  0.5f, -0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,1.f} },
-		{ Vec3{ 0.5f,  0.5f, -0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} },
-		{ Vec3{-0.5f, -0.5f, -0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{0.f,1.f} },
-		{ Vec3{ 0.5f, -0.5f, -0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} },
+		{ Vec3{-0.5f,  0.5f, -0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{-0.5f,  0.5f, -0.5f}, Vec2{1.f,1.f} },
+		{ Vec3{ 0.5f,  0.5f, -0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{ 0.5f,  0.5f, -0.5f}, Vec2{1.f,0.f} },
+		{ Vec3{-0.5f, -0.5f, -0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{-0.5f, -0.5f, -0.5f}, Vec2{0.f,1.f} },
+		{ Vec3{ 0.5f, -0.5f, -0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{ 0.5f, -0.5f, -0.5f}, Vec2{1.f,0.f} },
 
-		{ Vec3{-0.5f,  0.5f,  0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} },
-		{ Vec3{ 0.5f,  0.5f,  0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} },
-		{ Vec3{-0.5f, -0.5f,  0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} },
-		{ Vec3{ 0.5f, -0.5f,  0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} }
+		{ Vec3{-0.5f,  0.5f,  0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{-0.5f,  0.5f,  0.5f}, Vec2{1.f,0.f} },
+		{ Vec3{ 0.5f,  0.5f,  0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{ 0.5f,  0.5f,  0.5f}, Vec2{1.f,0.f} },
+		{ Vec3{-0.5f, -0.5f,  0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{-0.5f, -0.5f,  0.5f}, Vec2{1.f,0.f} },
+		{ Vec3{ 0.5f, -0.5f,  0.5f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{ 0.5f, -0.5f,  0.5f}, Vec2{1.f,0.f} }
 	};
+
 	//index the verices counterclock wise
 	//Counterclock wise because D3D uses it by default
 	int indices[36] =
@@ -96,7 +97,6 @@ void Engine::Resources::Mesh::GenerateSphere(int rings, int segments)
 	rings = Max(rings, 3);
 	segments = Max(segments, 3);
 
-	float lengthInv = 1.0f; // / radius
 	float sectorStep = 2 * PI / segments;
 	float stackStep = PI / rings;
 	float sectorAngle, stackAngle;
@@ -130,13 +130,15 @@ void Engine::Resources::Mesh::GenerateSphere(int rings, int segments)
 			float x = xy * cosf(sectorAngle);
 			float y = xy * sinf(sectorAngle);
 
-			vertices[v++].position = Vec3(x, y, z);
+			vertices[v].position = Vec3(x, y, z);
 
-			float nx = x * lengthInv;
-			float ny = y * lengthInv;
-			float nz = z * lengthInv;
+			float nx = x;
+			float ny = y;
+			float nz = z;
 
 			vertices[v].normal = Vec3(nx, ny, nz);
+			vertices[v].color = FloatColor{ 1.0, 0.0, 0.0, 1.0 };
+			v++;
 			if (i == 0 || i == rings)
 				break;
 		}

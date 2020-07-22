@@ -303,19 +303,19 @@ namespace Engine::Math
 			real tyy = q.y * ty;
 			real tyz = q.y * tz;
 
-			real tzz = tz * q.z;
+			real tzz = q.z * tz;
 
-			m.m11 = static_cast<real>(1.0) - tyy + tzz;
+			m.m11 = static_cast<real>(1.0) - (tyy + tzz);
 			m.m12 = txy - twz;
 			m.m13 = txz + twy;
 
 			m.m21 = txy + twz;
-			m.m22 = static_cast<real>(1.0) - txx + tzz;
+			m.m22 = static_cast<real>(1.0) - (txx + tzz);
 			m.m23 = tyz - twx;
 
 			m.m31 = txz - twy;
 			m.m32 = tyz + twx;
-			m.m33 = static_cast<real>(1.0) - txx + tyy;
+			m.m33 = static_cast<real>(1.0) - (txx + tyy);
 
 			return m;
 		}
