@@ -11,91 +11,7 @@
 using namespace Engine::Math;
 using namespace Engine::Utils;
 
-struct VertexType
-{
-	Vec3 position;
-	FloatColor color;
-	Vec3 normal;
-	Vec2 texCoords;
-};
-
 GE_DEFINE_SINGLETON(Engine::Graphics::D3D11Renderer)
-void Engine::Graphics::D3D11Renderer::GenerateQuad()
-{
-	//Create the verices required to represent a quad
-	VertexType vertices[4] = 
-	{ 
-		{ Vec3{-0.5f, -0.5f, 0.0f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,1.f} },
-		{ Vec3{0.5f, -0.5f, 0.0f}, FloatColor{0.f, 1.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} },
-		{ Vec3{-0.5f, 0.5f, 0.0f}, FloatColor{0.f, 0.f, 1.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{0.f,1.f}},
-		{ Vec3{0.5f, 0.5f, 0.0f}, FloatColor{1.f, 0.f, 0.f, 1.f}, Vec3{0.f, 0.f, -1.f}, Vec2{1.f,0.f} }
-	};
-	//index the verices counterclock wise
-	//Counterclock wise because D3D uses it by default
-	int indices[6] =
-	{
-		0,2,1,
-		1,2,3
-	};
-
-	/*
-	Create Vertex Buffer Description
-	D3D11_BIND_VERTEX_BUFFER to describe this buffer as vertex buffer
-	CPUAccessFlags to define if cpu and/or gpu can write to or read from it
-	ByteWidth the size/count of the data/vertices
-	MiscFlags to mark it in special ways
-	*/
-	D3D11_BUFFER_DESC vbDesc = {};
-	vbDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-	vbDesc.ByteWidth = sizeof(vertices);
-	vbDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbDesc.CPUAccessFlags = 0;
-	vbDesc.MiscFlags = 0;
-	vbDesc.StructureByteStride = 0;
-	/*
-	Create Vertex Buffer Resource
-	pSysMem the pointer to the data to be uploaded to the buffer
-	*/
-	D3D11_SUBRESOURCE_DATA vbSubResource = {};
-	vbSubResource.pSysMem = &vertices;
-	vbSubResource.SysMemPitch = 0;
-	vbSubResource.SysMemSlicePitch = 0;
-	//Tell device to create Vertex Buffer and the data in subresource
-	if (FAILED(device->CreateBuffer(&vbDesc, &vbSubResource, &quadVertexBuffer)))
-	{
-		MessageBoxA(NULL, "Could not create vertex buffer", "ERROR", MB_OK | MB_ICONEXCLAMATION);
-		return;
-	}
-
-	/*
-	Create Index Buffer Description
-	D3D11_BIND_VERTEX_BUFFER to describe this buffer as index buffer
-	CPUAccessFlags to define if cpu and/or gpu can write to or read from it
-	ByteWidth the size/count of the data/indices
-	MiscFlags to mark it in special ways
-	*/
-	D3D11_BUFFER_DESC ibDesc = {};
-	ibDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-	ibDesc.ByteWidth = sizeof(indices);
-	ibDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibDesc.CPUAccessFlags = 0;
-	ibDesc.MiscFlags = 0;
-	ibDesc.StructureByteStride = 0;
-	/*
-	Create Index Buffer Resource
-	pSysMem the pointer to the data to be uploaded to the buffer
-	*/
-	D3D11_SUBRESOURCE_DATA ibSubResource = {};
-	ibSubResource.pSysMem = &indices;
-	ibSubResource.SysMemPitch = 0;
-	ibSubResource.SysMemSlicePitch = 0;
-	//Tell device to create Index Buffer and the data in subresource
-	if (FAILED(device->CreateBuffer(&ibDesc, &ibSubResource, &quadIndexBuffer)))
-	{
-		MessageBoxA(NULL, "Could not create index buffer", "ERROR", MB_OK | MB_ICONEXCLAMATION);
-		return;
-	}
-}
 
 bool Engine::Graphics::D3D11Renderer::Init(Engine::Core::AppWindow& window)
 {
@@ -236,6 +152,8 @@ bool Engine::Graphics::D3D11Renderer::Init(Engine::Core::AppWindow& window)
 	//Release the texture2D as we assigned it to the render target view
 	SAFERELEASE(surface);
 
+
+	//Create a Texture2D with 1 channel that the depth stencil buffer can write to
 	ID3D11Texture2D* depthSurface = nullptr;
 	D3D11_TEXTURE2D_DESC depthBufferDesc = {};
 	depthBufferDesc.Format = DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
@@ -252,6 +170,7 @@ bool Engine::Graphics::D3D11Renderer::Init(Engine::Core::AppWindow& window)
 		MessageBoxA(NULL, "Could not create depth buffer texture", "ERROR", MB_OK | MB_ICONEXCLAMATION);
 		return false;
 	}
+	//Create the depth stencil state that will descripe how depth is calculate if enabled
 	D3D11_DEPTH_STENCIL_DESC stencilDesc = {};
 	stencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
 	stencilDesc.DepthEnable = true;
@@ -264,6 +183,7 @@ bool Engine::Graphics::D3D11Renderer::Init(Engine::Core::AppWindow& window)
 	}
 	context->OMSetDepthStencilState(depthState, 1);
 
+	//Create the depth view from the Texture
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthViewDesc = {};
 	depthViewDesc.Format = DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
 	depthViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -279,6 +199,10 @@ bool Engine::Graphics::D3D11Renderer::Init(Engine::Core::AppWindow& window)
 
 	
 	
+	/*
+	Create a rasterizer to tell the cpu what to cull and how the index winding is done
+	Addionally a variable is addded to enable a wireframe mode just for fun
+	*/
 	D3D11_RASTERIZER_DESC rasterDesc = {};
 	rasterDesc.FrontCounterClockwise = true;
 	rasterDesc.CullMode = wireframe ? D3D11_CULL_NONE : D3D11_CULL_BACK;
@@ -400,14 +324,17 @@ void Engine::Graphics::D3D11Renderer::BeginScene()
 
 	if (activeCamera)
 	{
+		//Map the contents of the cameraBuffer in CPU memory to be accessed by CPU
 		D3D11_MAPPED_SUBRESOURCE camResource = {};
 		if (FAILED(context->Map(reinterpret_cast<ID3D11Resource*>(cameraBuffer), 0, D3D11_MAP_WRITE_DISCARD, 0, &camResource)))
 		{
 			MessageBoxA(NULL, "could not map transform buffer", "ERROR", MB_OK | MB_ICONEXCLAMATION);
 			return;
 		}
+		//Convert mapped data to desired type
 		Mat4x4* dataMat = reinterpret_cast<Mat4x4*>(camResource.pData);
 
+		//Calculate our projection from the camera data
 		Mat4x4 viewProjMat = Mat4x4::Identity;
 		if (activeCamera->cameraType == Camera::CameraType::Perspective)
 		{
@@ -417,8 +344,9 @@ void Engine::Graphics::D3D11Renderer::BeginScene()
 		{
 			viewProjMat = Mat4x4::FromOrthographic(static_cast<real>(width), static_cast<real>(height), activeCamera->near_plane, activeCamera->far_plane) * Mat4x4::FromView(activeCamera->transform.position);
 		}
+		//Assign new data to be uploaded
 		if (dataMat)(*dataMat) = viewProjMat;
-
+		//Unmap to confirm upload and discard old data
 		context->Unmap(reinterpret_cast<ID3D11Resource*>(cameraBuffer), 0);
 	}
 }
@@ -444,43 +372,9 @@ void Engine::Graphics::D3D11Renderer::Shutdown()
 	SAFERELEASE(device);
 	SAFERELEASE(swapChain);
 
-
 	SAFERELEASE(vertexLayout);
 	SAFERELEASE(vertexShader);
 	SAFERELEASE(pixelShader);
-	SAFERELEASE(quadVertexBuffer);
-	SAFERELEASE(quadIndexBuffer);
-}
-
-void Engine::Graphics::D3D11Renderer::RenderQuad()
-{
-
-	//INPUT ASSEMBLER STAGE
-
-	ui32 stride = sizeof(VertexType);
-	ui32 offset = 0;
-
-	context->IASetVertexBuffers(0, 1, &quadVertexBuffer, &stride, &offset);
-
-	context->IASetIndexBuffer(quadIndexBuffer, DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-	
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	context->IASetInputLayout(vertexLayout);
-
-	//VERTEX SHADER STAGE
-
-	context->VSSetShader(vertexShader, nullptr, 0);
-
-	//PIXEL SHADER STAGE
-
-	context->PSSetShader(pixelShader, nullptr, 0);
-
-	//OUTPUT MERGER STAGE
-
-	context->OMSetRenderTargets(1, &rtv, nullptr);
-
-	context->DrawIndexed(6, 0, 0);
 }
 
 void Engine::Graphics::D3D11Renderer::RenderObject(Transform transform, int indexCount, GraphicsBufferPtr vertexBuffer, GraphicsBufferPtr indexBuffer)
@@ -489,31 +383,36 @@ void Engine::Graphics::D3D11Renderer::RenderObject(Transform transform, int inde
 
 	ui32 stride = sizeof(Vertex);
 	ui32 offset = 0;
-	//
+
+	//Generate model Matrix from Position/Translation Rotation Scale -> TRS
 	Mat4x4 modelMat = Mat4x4::FromTranslation(transform.position) * Mat4x4::FromOrientation(transform.rotation) * Mat4x4::FromScale(transform.scale);
 
+	//Map the contents of the transformBuffer in CPU memory to be accessed by CPU
 	D3D11_MAPPED_SUBRESOURCE modelResource = {};
 	if (FAILED(context->Map(reinterpret_cast<ID3D11Resource*>(transformBuffer), 0, D3D11_MAP_WRITE_DISCARD, 0, &modelResource)))
 	{
 		MessageBoxA(NULL, "could not map transform buffer", "ERROR", MB_OK | MB_ICONEXCLAMATION);
 		return;
 	}
+	//Convert mapped data to desired type
 	Mat4x4* dataMat = reinterpret_cast<Mat4x4*>(modelResource.pData);
+	//Assign new data to be uploaded
 	if(dataMat)(*dataMat) = modelMat;
 
+	//Unmap to confirm upload and discard old data
 	context->Unmap(reinterpret_cast<ID3D11Resource*>(transformBuffer), 0);
 
-
+	//Bind the transformation for rendering this object
 	context->VSSetConstantBuffers(0, 1, reinterpret_cast<ID3D11Buffer**>(&transformBuffer));
-
+	//Bind the camera transformation for rendering this object
 	context->VSSetConstantBuffers(1, 1, reinterpret_cast<ID3D11Buffer**>(&cameraBuffer));
-
+	//Bind the vertex data that describes the object we want to render
 	context->IASetVertexBuffers(0, 1, reinterpret_cast<ID3D11Buffer**>(&vertexBuffer), &stride, &offset);
-
+	//Bind the index data that describes the faces of the object we want to render
 	context->IASetIndexBuffer(reinterpret_cast<ID3D11Buffer*>(indexBuffer), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-
+	//The the assembler what type of data he will be working with
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
+	//Tell the assembler how the vertex shader inputs look like
 	context->IASetInputLayout(vertexLayout);
 
 	//VERTEX SHADER STAGE
@@ -528,6 +427,7 @@ void Engine::Graphics::D3D11Renderer::RenderObject(Transform transform, int inde
 
 	context->OMSetRenderTargets(1, &rtv, nullptr);
 
+	//Draw the object with the amount indices the object has
 	context->DrawIndexed(indexCount, 0, 0);
 }
 
@@ -537,7 +437,7 @@ void Engine::Graphics::D3D11Renderer::SetActiveCamera(const Camera& camera)
 	{
 		activeCamera = &camera;
 
-		//Mat4x4 cameraMat = Mat4x4::FromOrientation(activeCamera->transform.rotation);
+		//Create a buffer with the calculated matrix of the camera
 		Mat4x4 viewProjMat = Mat4x4::Identity;
 		if (activeCamera->cameraType == Camera::CameraType::Perspective)
 		{

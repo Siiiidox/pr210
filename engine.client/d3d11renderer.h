@@ -7,6 +7,8 @@
 #include "appwindow.h"
 #include "singleton.h"
 #include "camera.h"
+
+//Define a generic pointer to replace plattform specific pointer like for windows ID3D11Buffer*
 typedef int* GraphicsBufferPtr;
 
 namespace Engine::Graphics
@@ -30,8 +32,6 @@ namespace Engine::Graphics
 		FLOAT clearColor[4] = { 0.529411f, 0.807843f, 0.921686f, 1.0f };
 		//Mesh Buffers
 		GraphicsBufferPtr transformBuffer = nullptr;
-		ID3D11Buffer* quadVertexBuffer = nullptr;
-		ID3D11Buffer* quadIndexBuffer = nullptr;
 		//Shaders
 		ID3D11VertexShader* vertexShader = nullptr;
 		ID3D11InputLayout* vertexLayout = nullptr;
@@ -40,10 +40,7 @@ namespace Engine::Graphics
 		const Camera* activeCamera = nullptr;
 		GraphicsBufferPtr cameraBuffer = nullptr;
 		ui32 width = 0, height = 0;
-		/// <summary>
-		/// Generate Vertex and Index Buffer for a quad
-		/// </summary>
-		void GenerateQuad();
+
 	public:
 		enum class BufferType
 		{
@@ -56,6 +53,11 @@ namespace Engine::Graphics
 			Default,
 			Dynamic
 		};
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="window">Window to init to</param>
+		/// <returns>init was successful</returns>
 		bool Init(Engine::Core::AppWindow &window);
 		/// <summary>
 		/// Creates shaders and layout for vertex and pixel shader loaded from file
@@ -73,14 +75,22 @@ namespace Engine::Graphics
 		/// Release and clear/delete previously created pointers and exit fullscreen if required
 		/// </summary>
 		void Shutdown();
-		/// <summary>
-		/// Render the generated quad with loaded shaders
-		/// </summary>
-		void RenderQuad();
 
 		void RenderObject(Engine::Math::Transform transform, int indexCount, GraphicsBufferPtr vertexBuffer, GraphicsBufferPtr indexBuffer);
-
+		/// <summary>
+		/// Assign a camera to be used for rendering
+		/// </summary>
+		/// <param name="camera"></param>
 		void SetActiveCamera(const Camera& camera);
+
+		/// <summary>
+		/// Create a Buffer in a specific type with data and the defined usage
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="data"></param>
+		/// <param name="dataSize"></param>
+		/// <param name="usage"></param>
+		/// <returns>A generic pointer to be used for rendering or updating the buffer</returns>
 		GraphicsBufferPtr CreateBuffer(BufferType type, const void* data, int dataSize, UsageType usage = UsageType::Default);
 		
 	};
