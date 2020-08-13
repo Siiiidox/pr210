@@ -2,6 +2,7 @@
 #include "application.h"
 #include "types.h"
 #include "mesh.h"
+#include <iostream>
 
 
 void Application::Init()
@@ -29,6 +30,11 @@ void Application::Init()
 
 void Application::Run()
 {
+	Engine::Math::Vec3 standardScale = cube.transform.scale;
+	Engine::Math::Vec3 tempScale = cube.transform.scale;
+	bool inverse = false;
+	real scale = static_cast<real>(1.0);
+
 	while (this->currentState == ApplicationState::Running)
 	{
 		if (!window.MessagePump())
@@ -37,8 +43,25 @@ void Application::Run()
 		}
 		float time = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::high_resolution_clock::now() - t_start).count();
 		renderer.BeginScene();
-		renderer.RenderCube(Engine::Math::Quaternion::FromAngleAxis(static_cast<real>(time * 180.0f), Engine::Math::Vec3::UNITX - Engine::Math::Vec3::UNITY), cube);
+		renderer.RenderCube(Engine::Math::Quaternion::FromAngleAxis(static_cast<real>(time * 360.0f), Engine::Math::Vec3::UNITX - Engine::Math::Vec3::UNITY), cube);
 		renderer.EndScene();
+
+		if (time >= 1.0f)
+		{
+			t_start = std::chrono::high_resolution_clock::now();
+			inverse = !inverse;
+			tempScale = cube.transform.scale;
+		}
+		if (inverse)
+		{
+			scale = static_cast<real>(0.3);
+		}
+		else
+		{
+			scale = static_cast<real>(2.0);
+		}
+
+		cube.transform.scale = tempScale.Lerp(standardScale * scale, time);
 	}
 
 }

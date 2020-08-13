@@ -26,7 +26,7 @@ namespace Engine::Graphics
 		IDXGISwapChain* swapChain = nullptr;
 		ID3D11DeviceContext* immediateContext = nullptr;
 		ID3D11RenderTargetView* targetView = nullptr;
-		FLOAT clearColor[4] = { 0.f, 0.8f, 1.f, 1.f };
+		FLOAT clearColor[4] = { 0.f, 0.1f, 0.2f, 1.f };
 		//Mesh Buffers
 		GraphicsBufferPtr transformBuffer = nullptr;
 		//Shader

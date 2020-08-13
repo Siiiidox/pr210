@@ -142,7 +142,7 @@ bool Engine::Graphics::D3D11Renderer::Init(ApplicationWindow& window)
 
 	immediateContext->OMSetRenderTargets(1, &targetView, nullptr);
 
-
+	//Create Rasterizer to have a Solid Object.
 	ID3D11RasterizerState* rasterState = nullptr;
 	D3D11_RASTERIZER_DESC rasterDesc = { };
 	rasterDesc.FrontCounterClockwise = true;
@@ -248,6 +248,7 @@ void Engine::Graphics::D3D11Renderer::RenderCube(Engine::Math::Quaternion rotati
 	//Input Assembler Stage
 	ui32 stride = sizeof(Engine::Graphics::Vertex);
 	ui32 offset = 0;
+
 
 	Engine::Math::Matrix4x4 objectMatrix =
 		Engine::Math::Matrix4x4::FromTranslation(cube.transform.position)

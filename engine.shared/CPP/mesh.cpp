@@ -23,15 +23,15 @@ Engine::Resources::Cube Engine::Resources::Mesh::GenerateCube(Engine::Math::Tran
 	cube.transform = transform;
 	Engine::Graphics::Vertex vertices[] =
 	{
-		{ Engine::Math::Vec3{-0.5f,  0.5f, -0.5f}, Engine::Utils::FloatColor{1.f, 0.f, 1.f, 1.f}, Engine::Math::Vec3{-0.5f,  0.5f, -0.5f}, Engine::Math::Vec2{1.f,1.f} },
-		{ Engine::Math::Vec3{ 0.5f,  0.5f, -0.5f}, Engine::Utils::FloatColor{1.f, 0.f, 0.f, 1.f}, Engine::Math::Vec3{ 0.5f,  0.5f, -0.5f}, Engine::Math::Vec2{1.f,0.f} },
-		{ Engine::Math::Vec3{-0.5f, -0.5f, -0.5f}, Engine::Utils::FloatColor{1.f, 0.f, 0.f, 1.f}, Engine::Math::Vec3{-0.5f, -0.5f, -0.5f}, Engine::Math::Vec2{0.f,1.f} },
-		{ Engine::Math::Vec3{ 0.5f, -0.5f, -0.5f}, Engine::Utils::FloatColor{1.f, 1.f, 0.f, 1.f}, Engine::Math::Vec3{ 0.5f, -0.5f, -0.5f}, Engine::Math::Vec2{1.f,0.f} },
+		{ Engine::Math::Vec3{-0.5f,  0.5f, -0.5f}, Engine::Utils::FloatColor{1.f, 0.f, 0.f, 1.f}, Engine::Math::Vec3{-0.5f,  0.5f, -0.5f}, Engine::Math::Vec2{1.f,1.f} },
+		{ Engine::Math::Vec3{ 0.5f,  0.5f, -0.5f}, Engine::Utils::FloatColor{1.f, 1.f, 0.f, 1.f}, Engine::Math::Vec3{ 0.5f,  0.5f, -0.5f}, Engine::Math::Vec2{1.f,0.f} },
+		{ Engine::Math::Vec3{-0.5f, -0.5f, -0.5f}, Engine::Utils::FloatColor{0.f, 1.f, 1.f, 1.f}, Engine::Math::Vec3{-0.5f, -0.5f, -0.5f}, Engine::Math::Vec2{0.f,1.f} },
+		{ Engine::Math::Vec3{ 0.5f, -0.5f, -0.5f}, Engine::Utils::FloatColor{0.f, 0.f, 1.f, 1.f}, Engine::Math::Vec3{ 0.5f, -0.5f, -0.5f}, Engine::Math::Vec2{1.f,0.f} },
 
-		{ Engine::Math::Vec3{-0.5f,  0.5f,  0.5f}, Engine::Utils::FloatColor{1.f, 1.f, 0.f, 1.f}, Engine::Math::Vec3{-0.5f,  0.5f,  0.5f}, Engine::Math::Vec2{1.f,0.f} },
-		{ Engine::Math::Vec3{ 0.5f,  0.5f,  0.5f}, Engine::Utils::FloatColor{0.f, 1.f, 0.f, 1.f}, Engine::Math::Vec3{ 0.5f,  0.5f,  0.5f}, Engine::Math::Vec2{1.f,0.f} },
-		{ Engine::Math::Vec3{-0.5f, -0.5f,  0.5f}, Engine::Utils::FloatColor{0.f, 1.f, 0.f, 1.f}, Engine::Math::Vec3{-0.5f, -0.5f,  0.5f}, Engine::Math::Vec2{1.f,0.f} },
-		{ Engine::Math::Vec3{ 0.5f, -0.5f,  0.5f}, Engine::Utils::FloatColor{0.f, 1.f, 1.f, 1.f}, Engine::Math::Vec3{ 0.5f, -0.5f,  0.5f}, Engine::Math::Vec2{1.f,0.f} }
+		{ Engine::Math::Vec3{-0.5f,  0.5f,  0.5f}, Engine::Utils::FloatColor{0.f, 0.f, 1.f, 1.f}, Engine::Math::Vec3{-0.5f,  0.5f,  0.5f}, Engine::Math::Vec2{1.f,0.f} },
+		{ Engine::Math::Vec3{ 0.5f,  0.5f,  0.5f}, Engine::Utils::FloatColor{0.f, 1.f, 1.f, 1.f}, Engine::Math::Vec3{ 0.5f,  0.5f,  0.5f}, Engine::Math::Vec2{1.f,0.f} },
+		{ Engine::Math::Vec3{-0.5f, -0.5f,  0.5f}, Engine::Utils::FloatColor{1.f, 1.f, 0.f, 1.f}, Engine::Math::Vec3{-0.5f, -0.5f,  0.5f}, Engine::Math::Vec2{1.f,0.f} },
+		{ Engine::Math::Vec3{ 0.5f, -0.5f,  0.5f}, Engine::Utils::FloatColor{1.f, 0.f, 0.f, 1.f}, Engine::Math::Vec3{ 0.5f, -0.5f,  0.5f}, Engine::Math::Vec2{1.f,0.f} }
 	};
 	cube.vertices = vertices;
 
