@@ -6,156 +6,11 @@
 #include "vec3.h"
 #include "vec2.h"
 #include "color.h"
+#include "mesh.h"
+#include "vertex.h"
+#include "matrix4x4.h"
 
 
-struct vertexType
-{
-	Engine::Math::Vec3 position;
-	Engine::Utils::FloatColor color;
-	Engine::Math::Vec3 normal;
-	Engine::Math::Vec2 textCoords;
-};
-
-void Engine::Graphics::D3D11Renderer::GenerateQuad()
-{
-	vertexType vertices[4] =
-	{
-		{ Engine::Math::Vec3 {-0.5f, -0.5f, 0.f }, Engine::Utils::FloatColor { .5f,.5f,.5f, 1.f }, Engine::Math::Vec3 { 0.f, 0.f, 1.f }, Engine::Math::Vec2{ 0.f, 0.f} },
-		{ Engine::Math::Vec3 { 0.5f, -0.5f, 0.f }, Engine::Utils::FloatColor { .5f,.5f,.5f, 1.f }, Engine::Math::Vec3 { 0.f, 0.f, 1.f }, Engine::Math::Vec2{ 1.f, 0.f} },
-		{ Engine::Math::Vec3 { -0.5f, 0.5f, 0.f }, Engine::Utils::FloatColor { .5f,.5f,.5f, 1.f }, Engine::Math::Vec3 { 0.f, 0.f, 1.f }, Engine::Math::Vec2{ 0.f, 1.f} },
-		{ Engine::Math::Vec3 { 0.5f, 0.5f, 0.f }, Engine::Utils::FloatColor { .5f,.5f,.5f, 1.f }, Engine::Math::Vec3 { 0.f, 0.f, 1.f }, Engine::Math::Vec2{ 1.f, 1.f} }
-	};
-
-	int index[6] = { 0, 2, 1, 1, 2, 3 };
-
-
-	D3D11_BUFFER_DESC vertexBufferDesc = { };
-	vertexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-	vertexBufferDesc.ByteWidth = sizeof(vertices);
-	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.CPUAccessFlags = 0;
-	vertexBufferDesc.MiscFlags = 0;
-	vertexBufferDesc.StructureByteStride = 0;
-
-	D3D11_SUBRESOURCE_DATA vertexResourceData = { };
-	vertexResourceData.pSysMem = &vertices;
-	vertexResourceData.SysMemPitch = 0;
-	vertexResourceData.SysMemSlicePitch = 0;
-
-	if (FAILED(device->CreateBuffer(&vertexBufferDesc, &vertexResourceData, &quadVertexBuffer)))
-	{
-		printf("Caught Error: device->CreateBuffer(vertex) FAILED!\n");
-		return;
-	}
-
-	D3D11_BUFFER_DESC indexBufferDesc = { };
-	indexBufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(index);
-	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufferDesc.CPUAccessFlags = 0;
-	indexBufferDesc.MiscFlags = 0;
-	indexBufferDesc.StructureByteStride = 0;
-
-	D3D11_SUBRESOURCE_DATA indexResourceData = { };
-	indexResourceData.pSysMem = &index;
-	indexResourceData.SysMemPitch = 0;
-	indexResourceData.SysMemSlicePitch = 0;
-
-	if (FAILED(device->CreateBuffer(&indexBufferDesc, &indexResourceData, &quadIndexBuffer)))
-	{
-		printf("Caught Error: device->CreateBuffer(index) FAILED!\n");
-		return;
-	}
-}
-
-void Engine::Graphics::D3D11Renderer::RenderQuad()
-{
-	//Input Assembler Stage
-	ui32 stride = sizeof(vertexType);
-	ui32 offset = 0;
-	immediateContext->IASetVertexBuffers(0, 1, &quadVertexBuffer, &stride, &offset);
-	immediateContext->IASetIndexBuffer(quadIndexBuffer, DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-
-	immediateContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	immediateContext->IASetInputLayout(vertexLayout);
-
-	//Vertex Shader Stage
-	immediateContext->VSSetShader(vertexShader, nullptr, 0);
-
-	//Pixel Shader Stage
-	immediateContext->PSSetShader(pixelShader, nullptr, 0);
-
-	//Ouput Merger Stage
-	immediateContext->OMSetRenderTargets(1, &targetView, nullptr);
-
-	immediateContext->DrawIndexed(6, 0, 0);
-}
-
-void Engine::Graphics::D3D11Renderer::CreateShader()
-{
-	ID3DBlob* vertexShaderBlob = nullptr;
-	if (FAILED(D3DReadFileToBlob(L"./data/shd/vertexDefault.shader", &vertexShaderBlob)))
-	{
-		printf("Caught Error: D3DReadFileToBlob(vertex) FAILED!\n");
-		return;
-	}
-
-	ID3DBlob* indexShaderBlob = nullptr;
-	if (FAILED(D3DReadFileToBlob(L"./data/shd/pixelDefault.shader", &indexShaderBlob)))
-	{
-		printf("Caught Error: D3DReadFileToBlob(index) FAILED!\n");
-		return;
-	}
-
-
-	if (FAILED(device->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, &vertexShader)))
-	{
-		printf("Caught Error: CreateVertexShader() FAILED!\n");
-		return;
-	}
-
-	if (FAILED(device->CreatePixelShader(indexShaderBlob->GetBufferPointer(), indexShaderBlob->GetBufferSize(), nullptr, &pixelShader)))
-	{
-		printf("Caught Error: CreateVertexShader() FAILED!\n");
-		return;
-	}
-
-	D3D11_INPUT_ELEMENT_DESC vertexElementDesc[4] = { };
-	vertexElementDesc[0].Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexElementDesc[0].InputSlot = 0;
-	vertexElementDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	vertexElementDesc[0].AlignedByteOffset = 0;
-	vertexElementDesc[0].SemanticIndex = 0;
-	vertexElementDesc[0].SemanticName = "POSITION";
-
-	vertexElementDesc[1].Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT;
-	vertexElementDesc[1].InputSlot = 0;
-	vertexElementDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	vertexElementDesc[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	vertexElementDesc[1].SemanticIndex = 0;
-	vertexElementDesc[1].SemanticName = "COLOR";
-
-	vertexElementDesc[2].Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT;
-	vertexElementDesc[2].InputSlot = 0;
-	vertexElementDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	vertexElementDesc[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	vertexElementDesc[2].SemanticIndex = 0;
-	vertexElementDesc[2].SemanticName = "NORMAL";
-
-	vertexElementDesc[3].Format = DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT;
-	vertexElementDesc[3].InputSlot = 0;
-	vertexElementDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-	vertexElementDesc[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-	vertexElementDesc[3].SemanticIndex = 0;
-	vertexElementDesc[3].SemanticName = "TEXCOORD";
-
-	if (FAILED(device->CreateInputLayout(vertexElementDesc, sizeof(vertexElementDesc) / sizeof(D3D11_INPUT_ELEMENT_DESC), vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &vertexLayout)))
-	{
-		printf("Caught Error: device->CreateInputLayout FAILED!\n");
-		return;
-	}
-}
 
 bool Engine::Graphics::D3D11Renderer::Init(ApplicationWindow& window)
 {
@@ -204,8 +59,6 @@ bool Engine::Graphics::D3D11Renderer::Init(ApplicationWindow& window)
 
 	ui32 refreshNumerator = 0;
 	ui32 refreshDenominator = 0;
-	ui32 width = 0;
-	ui32 height = 0;
 	for (ui32 i = 0; i < numModes; i++)
 	{
 		if (window.GetClientSize(width, height) && modeDesc[i].Width == width && modeDesc[i].Height == height)
@@ -299,7 +152,40 @@ bool Engine::Graphics::D3D11Renderer::Init(ApplicationWindow& window)
 	};
 	immediateContext->RSSetViewports(1, &viewport);
 
-	GenerateQuad();
+
+	D3D11_BUFFER_DESC bufferDesc = {};
+	bufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
+
+	bufferDesc.ByteWidth = sizeof(Engine::Math::Matrix4x4);
+
+	bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bufferDesc.MiscFlags = 0;
+	bufferDesc.StructureByteStride = 0;
+
+	D3D11_SUBRESOURCE_DATA bufferSubResource = {};
+	bufferSubResource.pSysMem = &Engine::Math::Matrix4x4::IDENTITY;
+	bufferSubResource.SysMemPitch = 0;
+	bufferSubResource.SysMemSlicePitch = 0;
+	ID3D11Buffer* buffer = nullptr;
+
+	//Tell device to create Vertex Buffer and the data in subresource
+	if (FAILED(device->CreateBuffer(&bufferDesc, &bufferSubResource, &buffer)))
+	{
+		MessageBoxA(NULL, "Could not create Camerabuffer", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return false;
+	}
+	transformBuffer = reinterpret_cast<GraphicsBufferPtr>(buffer);
+	if (!transformBuffer)
+	{
+		MessageBoxA(NULL, "Could not set camera", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+	}
+
+
+	//TODO
+	//Engine::Resources::Mesh mesh = Engine::Resources::Mesh();
+	//mesh.GenerateQuad(device,quadVertexBuffer, quadIndexBuffer);
+	//
 	CreateShader();
 
 	return true;
@@ -315,8 +201,6 @@ void Engine::Graphics::D3D11Renderer::Shutdown()
 	SAFERELEASE(vertexLayout);
 	SAFERELEASE(vertexShader);
 	SAFERELEASE(pixelShader);
-	SAFERELEASE(quadVertexBuffer);
-	SAFERELEASE(quadIndexBuffer);
 
 	SAFERELEASE(targetView);
 	SAFERELEASE(immediateContext);
@@ -338,5 +222,172 @@ void Engine::Graphics::D3D11Renderer::EndScene()
 	else
 	{
 		swapChain->Present(0, 0);
+	}
+}
+
+
+void Engine::Graphics::D3D11Renderer::RenderCube(Engine::Math::Quaternion rotation, Engine::Resources::Cube cube)
+{
+	//Input Assembler Stage
+	ui32 stride = sizeof(Engine::Graphics::Vertex);
+	ui32 offset = 0;
+
+	Engine::Math::Matrix4x4 objectMatrix =
+		Engine::Math::Matrix4x4::FromTranslation(cube.transform.position)
+		* Engine::Math::Matrix4x4::FromOrientation(rotation)
+		* Engine::Math::Matrix4x4::FromScale(cube.transform.scale);
+
+
+	//Map the contents of the transformBuffer in CPU memory to be accessed by CPU
+	D3D11_MAPPED_SUBRESOURCE modelResource = {};
+	if (FAILED(immediateContext->Map(reinterpret_cast<ID3D11Resource*>(transformBuffer), 0, D3D11_MAP_WRITE_DISCARD, 0, &modelResource)))
+	{
+		MessageBoxA(NULL, "could not map transform buffer", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return;
+	}
+	//Convert mapped data to desired type
+	Engine::Math::Matrix4x4* dataMat = reinterpret_cast<Engine::Math::Matrix4x4*>(modelResource.pData);
+
+	//Assign new data to be uploaded
+	if (dataMat)(*dataMat) = objectMatrix;
+
+	//Unmap to confirm upload and discard old data
+	immediateContext->Unmap(reinterpret_cast<ID3D11Resource*>(transformBuffer), 0);
+
+	//Bind the transformation for rendering this object
+	immediateContext->VSSetConstantBuffers(0, 1, reinterpret_cast<ID3D11Buffer**>(&transformBuffer));
+
+	immediateContext->VSSetConstantBuffers(1, 1, reinterpret_cast<ID3D11Buffer**>(&cameraBuffer));
+
+
+	immediateContext->IASetVertexBuffers(0, 1, &cube.quadVertexBuffer, &stride, &offset);
+	immediateContext->IASetIndexBuffer(cube.quadIndexBuffer, DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+
+	immediateContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	immediateContext->IASetInputLayout(vertexLayout);
+
+	//Vertex Shader Stage
+	immediateContext->VSSetShader(vertexShader, nullptr, 0);
+
+	//Pixel Shader Stage
+	immediateContext->PSSetShader(pixelShader, nullptr, 0);
+
+	//Ouput Merger Stage
+	immediateContext->OMSetRenderTargets(1, &targetView, nullptr);
+
+	immediateContext->DrawIndexed(cube.indexCount, 0, 0);
+}
+
+void Engine::Graphics::D3D11Renderer::CreateShader()
+{
+	ID3DBlob* vertexShaderBlob = nullptr;
+	if (FAILED(D3DReadFileToBlob(L"./data/shd/vertexDefault.shader", &vertexShaderBlob)))
+	{
+		printf("Caught Error: D3DReadFileToBlob(vertex) FAILED!\n");
+		return;
+	}
+
+	ID3DBlob* indexShaderBlob = nullptr;
+	if (FAILED(D3DReadFileToBlob(L"./data/shd/pixelDefault.shader", &indexShaderBlob)))
+	{
+		printf("Caught Error: D3DReadFileToBlob(index) FAILED!\n");
+		return;
+	}
+
+
+	if (FAILED(device->CreateVertexShader(vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), nullptr, &vertexShader)))
+	{
+		printf("Caught Error: CreateVertexShader() FAILED!\n");
+		return;
+	}
+
+	if (FAILED(device->CreatePixelShader(indexShaderBlob->GetBufferPointer(), indexShaderBlob->GetBufferSize(), nullptr, &pixelShader)))
+	{
+		printf("Caught Error: CreateVertexShader() FAILED!\n");
+		return;
+	}
+
+	D3D11_INPUT_ELEMENT_DESC vertexElementDesc[4] = { };
+	vertexElementDesc[0].Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexElementDesc[0].InputSlot = 0;
+	vertexElementDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	vertexElementDesc[0].AlignedByteOffset = 0;
+	vertexElementDesc[0].SemanticIndex = 0;
+	vertexElementDesc[0].SemanticName = "POSITION";
+
+	vertexElementDesc[1].Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT;
+	vertexElementDesc[1].InputSlot = 0;
+	vertexElementDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	vertexElementDesc[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	vertexElementDesc[1].SemanticIndex = 0;
+	vertexElementDesc[1].SemanticName = "COLOR";
+
+	vertexElementDesc[2].Format = DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexElementDesc[2].InputSlot = 0;
+	vertexElementDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	vertexElementDesc[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	vertexElementDesc[2].SemanticIndex = 0;
+	vertexElementDesc[2].SemanticName = "NORMAL";
+
+	vertexElementDesc[3].Format = DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT;
+	vertexElementDesc[3].InputSlot = 0;
+	vertexElementDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	vertexElementDesc[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	vertexElementDesc[3].SemanticIndex = 0;
+	vertexElementDesc[3].SemanticName = "TEXCOORD";
+
+	if (FAILED(device->CreateInputLayout(vertexElementDesc, sizeof(vertexElementDesc) / sizeof(D3D11_INPUT_ELEMENT_DESC), vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize(), &vertexLayout)))
+	{
+		printf("Caught Error: device->CreateInputLayout FAILED!\n");
+		return;
+	}
+}
+
+void Engine::Graphics::D3D11Renderer::SetActiveCamera(const Camera& camera)
+{
+	if (!activeCamera)
+	{
+		activeCamera = &camera;
+
+		//Create a buffer with the calculated matrix of the camera
+		Engine::Math::Matrix4x4 viewProjMat = Engine::Math::Matrix4x4::IDENTITY;
+		if (activeCamera->cameraType == Camera::CameraType::Perspective)
+		{
+			viewProjMat = Engine::Math::Matrix4x4::FromPerspectiveFOV(activeCamera->h_fov, static_cast<real>(width) / static_cast<real>(height), activeCamera->near_plane, activeCamera->far_plane)* Engine::Math::Matrix4x4::FromView(activeCamera->transform.position);
+			//viewProjMat = Engine::Math::Matrix4x4::IDENTITY * Engine::Math::Matrix4x4::FromView(activeCamera->transform.position);
+		}
+		else
+		{
+			viewProjMat = Engine::Math::Matrix4x4::FromOrthographic(static_cast<real>(4), static_cast<real>(4), activeCamera->near_plane, activeCamera->far_plane)* Engine::Math::Matrix4x4::FromView(activeCamera->transform.position);
+		}
+
+		D3D11_BUFFER_DESC bufferDesc = {};
+		bufferDesc.Usage = D3D11_USAGE::D3D11_USAGE_DYNAMIC;
+
+		bufferDesc.ByteWidth = sizeof(Engine::Math::Matrix4x4);
+
+		bufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		bufferDesc.MiscFlags = 0;
+		bufferDesc.StructureByteStride = 0;
+
+		D3D11_SUBRESOURCE_DATA bufferSubResource = {};
+		bufferSubResource.pSysMem = &viewProjMat;
+		bufferSubResource.SysMemPitch = 0;
+		bufferSubResource.SysMemSlicePitch = 0;
+		ID3D11Buffer* buffer = nullptr;
+
+		//Tell device to create Vertex Buffer and the data in subresource
+		if (FAILED(device->CreateBuffer(&bufferDesc, &bufferSubResource, &buffer)))
+		{
+			MessageBoxA(NULL, "Could not create Camerabuffer", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+			return;
+		}
+		cameraBuffer = reinterpret_cast<GraphicsBufferPtr>(buffer);
+		if (!cameraBuffer)
+		{
+			MessageBoxA(NULL, "Could not set camera", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		}
 	}
 }

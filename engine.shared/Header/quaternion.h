@@ -7,6 +7,7 @@
 
 #include "types.h"
 #include "vec3.h"
+#include "mathUtils.h"
 
 namespace Engine::Math
 {
@@ -25,7 +26,10 @@ namespace Engine::Math
 			: Quaternion(quat.x, quat.y, quat.z, quat.w)
 		{
 		}
-		inline Quaternion(real x = static_cast<real>(0.0), real y = static_cast<real>(0.0), real z = static_cast<real>(0.0), real w = static_cast<real>(0.0)) :
+		inline Quaternion(real x = static_cast<real>(0.0),
+			real y = static_cast<real>(0.0),
+			real z = static_cast<real>(0.0),
+			real w = static_cast<real>(0.0)) :
 			x(x),
 			y(y),
 			z(z),
@@ -208,24 +212,25 @@ namespace Engine::Math
 
 		static Quaternion FromAngleAxis(real angle, const Vec3& axis)
 		{
-			real halfAngle = angle * static_cast<real>(0.5);
+			Vec3 normAxis = axis;
+			if (!normAxis.Normalize())
+			{
+				return Quaternion::ZERO;
+		}
+			real halfAngle = angle * static_cast<real>(0.5) * Engine::Math::ANGLETORAD();
 		#ifdef DOUBLEPRECISION
 			real tempSin = sin(halfAngle);
-		#else
-			real tempSin = sinf(halfAngle);
-		#endif
-
-		#ifdef DOUBLEPRECISION
 			real tempCos = cos(halfAngle);
 		#else
+			real tempSin = sinf(halfAngle);
 			real tempCos = cosf(halfAngle);
 		#endif
 
 			return Quaternion
 			{
-				axis.x * tempSin,
-				axis.y * tempSin,
-				axis.z * tempSin,
+				tempSin * normAxis.x,
+				tempSin * normAxis.y,
+				tempSin * normAxis.z,
 				tempCos
 			};
 		}
@@ -250,15 +255,22 @@ namespace Engine::Math
 		{
 			if (this->SqrMagnitude() > 0)
 			{
-				angle = static_cast<real>(2.0)* acos(this->w);
-				axis *= (static_cast<real>(1.0) - this->Magnitude());
+
+			#ifdef DOUBLEPRECISION 
+				angle = static_cast<real>(2)* acos(this->w);
+			#else
+				angle = static_cast<real>(2)* acosf(this->w);
+			#endif
+				real inverse = static_cast<real>(1) - this->Magnitude();
+				axis.x = this->x * inverse;
+				axis.y = this->y * inverse;
+				axis.z = this->z * inverse;
 			}
 			else
 			{
 				angle = static_cast<real>(0.0);
-				axis = Vec3::UNITX;
-			}
-
+				axis = Vec3::UNITY;
+			}		
 		}
 
 		inline Quaternion Inverse() const

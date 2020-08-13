@@ -21,6 +21,7 @@ target_sources(
         "${CMAKE_CURRENT_SOURCE_DIR}/Header/camera.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/Header/vertex.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/Header/singelton.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Header/transform.h"
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/CPP/vec2.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/CPP/vec3.cpp"

@@ -302,16 +302,48 @@ namespace Engine::Math
 
 		static Matrix4x4 FromScale(Vec3 vector = Vec3::UNITSCALE)
 		{
-			Matrix4x4 matrix = Matrix4x4::IDENTITY;
-			matrix.m11 = vector.x;
-			matrix.m22 = vector.y;
-			matrix.m33 = vector.z;
-			return matrix;
+			return Matrix4x4
+			{
+				vector.x, static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0),
+				static_cast<real>(0.0), vector.y, static_cast<real>(0.0), static_cast<real>(0.0),
+				static_cast<real>(0.0), static_cast<real>(0.0), vector.z, static_cast<real>(0.0),
+				static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(1.0)
+			};
 		}
 
 		static Matrix4x4 FromOrientation(Quaternion quat)
 		{
+			Matrix4x4 matrix = Matrix4x4::IDENTITY;
+			real tx = quat.x + quat.x;
+			real ty = quat.y + quat.y;
+			real tz = quat.z + quat.z;
 
+			real twx = quat.w * tx;
+			real twy = quat.w * ty;
+			real twz = quat.w * tz;
+
+			real txx = quat.x * tx;
+			real txy = quat.x * ty;
+			real txz = quat.x * tz;
+
+			real tyy = quat.y * ty;
+			real tyz = quat.y * tz;
+
+			real tzz = quat.z * tz;
+
+			matrix.m11 = static_cast<real>(1.0) - (tyy + tzz);
+			matrix.m12 = txy - twz;
+			matrix.m13 = txz + twy;
+
+			matrix.m21 = txy + twz;
+			matrix.m22 = static_cast<real>(1.0) - (txx + tzz);
+			matrix.m23 = tyz - twx;
+
+			matrix.m31 = txz - twy;
+			matrix.m32 = tyz + twx;
+			matrix.m33 = static_cast<real>(1.0) - (txx + tyy);
+
+			return matrix;
 		}
 
 		static Matrix4x4 FromView(Vec3 vector)
@@ -343,13 +375,18 @@ namespace Engine::Math
 
 		static Matrix4x4 FromPerspectiveFOV(real fov = static_cast<real>(75.0), real aspect = static_cast<real>(1.77778), real nearPlane = static_cast<real>(0.001), real farPlane = static_cast<real>(10000.0))
 		{
-			real s = static_cast<real>(1.0) / tan(fov / static_cast<real>(2.0)* PI / 180);
+		#ifdef DOUBLEPRECISION
+			real scaleY = static_cast<real>(1.0) / tan(fov / static_cast<real>(2.0)* ANGLETORAD());
+		#else
+			real scaleY = static_cast<real>(1.0) / tanf(fov / static_cast<real>(2.0)* ANGLETORAD());
+		#endif
+			real scaleX = scaleY / aspect;
 			return Matrix4x4
 			{
-				s, static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0),
-				static_cast<real>(0.0), s, static_cast<real>(0.0), static_cast<real>(0.0),
-				static_cast<real>(0.0), static_cast<real>(0.0), farPlane / (nearPlane - farPlane), nearPlane* farPlane / nearPlane - farPlane,
-				static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(-1.0), static_cast<real>(0.0)
+				scaleX, static_cast<real>(0.0), static_cast<real>(0.0), static_cast<real>(0.0),
+				static_cast<real>(0.0), scaleY, static_cast<real>(0.0), static_cast<real>(0.0),
+				static_cast<real>(0.0), static_cast<real>(0.0), farPlane / (nearPlane - farPlane), nearPlane* farPlane / (nearPlane - farPlane),
+				static_cast<real>(0.0), static_cast<real>(0.0), -1, static_cast<real>(0.0)
 			};
 		}
 	};
