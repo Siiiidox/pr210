@@ -37,7 +37,7 @@ void Application::Run()
 		}
 		float time = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::high_resolution_clock::now() - t_start).count();
 		renderer.BeginScene();
-		renderer.RenderCube(Engine::Math::Quaternion::FromAngleAxis(static_cast<real>(time * 180.0f), Engine::Math::Vec3::UNITY - Engine::Math::Vec3::UNITX), cube);
+		renderer.RenderCube(Engine::Math::Quaternion::FromAngleAxis(static_cast<real>(time * 180.0f), Engine::Math::Vec3::UNITX - Engine::Math::Vec3::UNITY), cube);
 		renderer.EndScene();
 	}
 

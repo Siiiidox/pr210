@@ -141,6 +141,23 @@ bool Engine::Graphics::D3D11Renderer::Init(ApplicationWindow& window)
 	SAFERELEASE(surface);
 
 	immediateContext->OMSetRenderTargets(1, &targetView, nullptr);
+
+
+	ID3D11RasterizerState* rasterState = nullptr;
+	D3D11_RASTERIZER_DESC rasterDesc = { };
+	rasterDesc.FrontCounterClockwise = true;
+	rasterDesc.CullMode = D3D11_CULL_BACK;
+	rasterDesc.MultisampleEnable = true;
+	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+
+	if(FAILED(device->CreateRasterizerState(&rasterDesc, &rasterState)))
+	{
+		MessageBoxA(NULL, "Could not create Camerabuffer", "ERROR", MB_OK | MB_ICONEXCLAMATION);
+		return false;
+	}
+	immediateContext->RSSetState(rasterState);
+
 	D3D11_VIEWPORT viewport
 	{
 		0.f,
