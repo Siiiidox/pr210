@@ -6,11 +6,18 @@
 
 namespace Engine::Graphics
 {
+	/*!
+	*	@brief stuct vertex which stores:
+	*	position,
+	*	color,
+	*	normal,
+	*	texCoords
+	*/
 	struct Vertex
 	{
 		Engine::Math::Vec3 position;
 		Engine::Utils::FloatColor color;
 		Engine::Math::Vec3 normal;
-		Engine::Math::Vec2 textCoords;
+		Engine::Math::Vec2 texCoords;
 	};
 }

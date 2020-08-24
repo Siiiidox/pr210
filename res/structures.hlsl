@@ -9,6 +9,7 @@ struct vs_in
 struct ps_in
 {
 	float4 position : SV_POSITION;
+	float3 worldPos : POSITION0;
 	float4 color : COLOR0;
 	float4 normal : NORMAL0;
 	float2 texCoord : TEXCOORD0;

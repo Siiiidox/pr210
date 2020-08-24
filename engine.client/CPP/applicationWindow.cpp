@@ -80,10 +80,6 @@ void ApplicationWindow::Minimize()
 	ShowWindow(hwnd, SW_MINIMIZE);
 }
 
-void ApplicationWindow::Resize()
-{
-}
-
 bool ApplicationWindow::MessagePump()
 {
 	MSG msg = {};

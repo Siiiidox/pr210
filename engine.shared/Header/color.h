@@ -2,6 +2,9 @@
 
 namespace Engine::Utils
 {
+	/*!
+	*	@brief Class to define Color as RGBA
+	*/
 	class FloatColor
 	{
 	public:

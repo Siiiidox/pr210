@@ -15,15 +15,26 @@ namespace Engine::Math
 	class Matrix4x4
 	{
 	public:
+		/*!
+		*	@brief declaration of each default variables for a Matrix4x4
+		*/
 		real m11 = static_cast<real>(0.0), m12 = static_cast<real>(0.0), m13 = static_cast<real>(0.0), m14 = static_cast<real>(0.0);
 		real m21 = static_cast<real>(0.0), m22 = static_cast<real>(0.0), m23 = static_cast<real>(0.0), m24 = static_cast<real>(0.0);
 		real m31 = static_cast<real>(0.0), m32 = static_cast<real>(0.0), m33 = static_cast<real>(0.0), m34 = static_cast<real>(0.0);
 		real m41 = static_cast<real>(0.0), m42 = static_cast<real>(0.0), m43 = static_cast<real>(0.0), m44 = static_cast<real>(0.0);
 
+		/*!
+		*	@brief Identity for the Matrix4x4
+		*/
 		static const Matrix4x4 IDENTITY;
+		/*!
+		*	@brief A Matrix4x4 where every variable is zero
+		*/
 		static const Matrix4x4 ZERO;
 
-
+		/*!
+		*	@brief Transpose the Matrix4x4
+		*/
 		inline Matrix4x4 Transpose() const
 		{
 			return Matrix4x4
@@ -290,7 +301,6 @@ namespace Engine::Math
 			};
 		}
 
-
 		static Matrix4x4 FromTranslation(Vec3 vector)
 		{
 			Matrix4x4 matrix = Matrix4x4::IDENTITY;
@@ -299,7 +309,6 @@ namespace Engine::Math
 			matrix.m34 = vector.z;
 			return matrix;
 		}
-
 		static Matrix4x4 FromScale(Vec3 vector = Vec3::UNITSCALE)
 		{
 			return Matrix4x4

@@ -4,6 +4,12 @@
 
 namespace Engine::Math
 {
+	/*!
+	*	@brief struct which stores variables as a Transform:
+	*	position,
+	*	rotation,
+	*	scale
+	*/
 	struct Transform
 	{		
 		Engine::Math::Vec3 position = Engine::Math::Vec3::ZERO;

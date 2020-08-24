@@ -22,13 +22,13 @@ target_sources(
         "${CMAKE_CURRENT_SOURCE_DIR}/Header/vertex.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/Header/singelton.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/Header/transform.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Header/stb_image.h"
     PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/CPP/vec2.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/CPP/vec3.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/CPP/quaternion.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/CPP/matrix4x4.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/CPP/mesh.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/CPP/camera.cpp"
 )
 
 # set additional target properties

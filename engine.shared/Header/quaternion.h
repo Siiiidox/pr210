@@ -14,18 +14,35 @@ namespace Engine::Math
 	class Quaternion
 	{
 	public:
-
+		/*!
+		*	@brief Default X
+		*/
 		real x = static_cast<real>(0.0);
+		/*!
+		*	@brief Default Y
+		*/
 		real y = static_cast<real>(0.0);
+		/*!
+		*	@brief Default Z
+		*/
 		real z = static_cast<real>(0.0);
+		/*!
+		*	@brief Default W
+		*/
 		real w = static_cast<real>(0.0);
 
+		/*!
+		*	@brief Quaternion as Zero Quaternion(0,0,0,0);
+		*/
 		static const Quaternion ZERO;
 
 		inline Quaternion(const Quaternion& quat)
 			: Quaternion(quat.x, quat.y, quat.z, quat.w)
 		{
 		}
+		/*!
+		*	@brief Default Consturctor
+		*/
 		inline Quaternion(real x = static_cast<real>(0.0),
 			real y = static_cast<real>(0.0),
 			real z = static_cast<real>(0.0),
@@ -36,7 +53,10 @@ namespace Engine::Math
 			w(w)
 		{
 		}
-
+		/*!
+		*	@brief Normalisation of the Quaternion
+		*	@return boolean if >= MIN
+		*/
 		inline bool Normalize()
 		{
 			real invertedMagnitude = static_cast<real>(1.0) / Magnitude();
@@ -52,6 +72,10 @@ namespace Engine::Math
 
 			return false;
 		}
+		/*!
+		*	@brief Magnitude of this Quaternion
+		*	@return real
+		*/
 		inline real Magnitude() const
 		{
 		#ifdef DOUBLEPRECISION
@@ -60,11 +84,20 @@ namespace Engine::Math
 			return sqrtf(SqrMagnitude());
 		#endif
 		}
+		/*!
+		*	@brief SqrMagnitude of this Quaternion
+		*	@return real
+		*/
 		inline real SqrMagnitude() const
 		{
 			return x * x + y * y + z * z + w * w;
 		}
 
+		/*!
+		*	@brief Dot product of the provided Quaterion and this Quaternion
+		*	@param Quaternion
+		*	@return real
+		*/
 		inline real Dot(Quaternion quat) const
 		{
 			return	(x * quat.x) +
@@ -72,10 +105,21 @@ namespace Engine::Math
 				(z * quat.z) +
 				(w * quat.w);
 		}
+		/*!
+		*	@brief Lerp between the provided and this Quaternion
+		*	@param Quaternion
+		*	@param real
+		*	@return Quaternion
+		*/
 		inline Quaternion Lerp(Quaternion quat, real time) const
 		{
 			return (*this) + (quat - (*this)) * time;
 		}
+		/*!
+		*	@brief calculate the Distance between the provided and this Quaternion
+		*	@param Quaternion
+		*	@return real
+		*/
 		inline real Distance(Quaternion quat) const
 		{
 		#ifdef DOUBLEPRECISION
@@ -84,6 +128,11 @@ namespace Engine::Math
 			return sqrtf(SqrDistance(quat));
 		#endif
 		}
+		/*!
+		*	@brief Calculate the SqrDistance from the provided and this Quaternion
+		*	@param Quaternion
+		*	@return real
+		*/
 		inline real SqrDistance(Quaternion quat) const
 		{
 			return (quat - *this).SqrMagnitude();
@@ -209,7 +258,12 @@ namespace Engine::Math
 		{
 			return Quaternion{ -x, -y , -z, w };
 		}
-
+		/*!
+		*	@brief Calcualte the Quaternion from the AngleAxis
+		*	@param real
+		*	@param Vec3
+		*	@return Quaternion
+		*/
 		static Quaternion FromAngleAxis(real angle, const Vec3& axis)
 		{
 			Vec3 normAxis = axis;
@@ -234,12 +288,21 @@ namespace Engine::Math
 				tempCos
 			};
 		}
-
+		/*!
+		*	@brief Check if the Quaterions are Equal
+		*	@param Quaternion
+		*	@return boolean
+		*/
 		inline bool Equals(const Quaternion& quat) const
 		{
 			return *this == quat;
 		}
-
+		/*!
+		*	@brief Check if the Quaterions are Equal with a tolerance
+		*	@param Quaternion
+		*	@param real
+		*	@return boolean
+		*/
 		inline bool Equals(const Quaternion& quat, const real tolerance) const
 		{
 			real dot = this->Dot(quat);
@@ -251,6 +314,12 @@ namespace Engine::Math
 			return abs(angle) <= tolerance;
 		}
 
+		/*!
+		*	@brief Rotate this Quaternion to the AngleAxis
+		*	@param real
+		*	@param Vec3
+		*	@return void
+		*/
 		inline void ToAngleAxis(real& angle, Vec3& axis) const
 		{
 			if (this->SqrMagnitude() > 0)
@@ -273,6 +342,10 @@ namespace Engine::Math
 			}		
 		}
 
+		/*!
+		*	@brief Inverse the Quaternion
+		*	@return Quaternion
+		*/
 		inline Quaternion Inverse() const
 		{
 			if (this->SqrMagnitude() > 0)
